@@ -1,0 +1,59 @@
+name: art
+# Renders the art library headless with Blender 4.2 LTS.
+#  - Pull requests touching blender/ or tools/: quick --preview render of everything + packer tests.
+#  - Manual run (Actions tab → art → Run workflow): full quality, packed assets opened as a PR.
+on:
+  pull_request: { paths: ['blender/**', 'tools/**', '.github/workflows/art.yml'] }
+  workflow_dispatch:
+    inputs:
+      only: { description: 'Only jobs matching (comma list, empty = all)', required: false, default: '' }
+      preview: { description: 'Preview quality', type: boolean, default: false }
+permissions:
+  contents: write
+  pull-requests: write
+env:
+  BLENDER_VERSION: 4.2.9
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+        with: { lfs: true }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install pillow numpy
+      - name: Packer tests
+        run: python -m unittest discover -s tools/tests -v
+      - name: Cache Blender
+        id: cache
+        uses: actions/cache@v4
+        with: { path: ~/blender, key: blender-${{ env.BLENDER_VERSION }} }
+      - name: Install Blender
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/blender
+          curl -fsSL "https://download.blender.org/release/Blender4.2/blender-${BLENDER_VERSION}-linux-x64.tar.xz" \
+            | tar -xJ -C ~/blender --strip-components=1
+      - run: sudo apt-get update && sudo apt-get install -y libxi6 libxkbcommon0 libxrender1 libsm6 libgl1
+      - name: Render
+        run: |
+          BLENDER=$HOME/blender/blender python blender/build_all.py -j 2 \
+            ${{ (github.event_name == 'pull_request' || inputs.preview) && '--preview' || '' }} \
+            ${{ inputs.only && format('--only {0}', inputs.only) || '' }}
+      - run: python blender/build_all.py --verify
+      - uses: actions/upload-artifact@v4
+        with: { name: art-build, path: build/art, retention-days: 7 }
+      - uses: actions/upload-artifact@v4
+        with: { name: web-assets, path: web/public/assets }
+      - name: Open PR with packed assets
+        if: github.event_name == 'workflow_dispatch' && !inputs.preview
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: art/render-${{ github.run_id }}
+          commit-message: "feat(art): render art library (run ${{ github.run_id }})"
+          title: "Art render ${{ github.run_id }}"
+          body: "Rendered headless with Blender ${{ env.BLENDER_VERSION }} by the art workflow. — Mohsen ~ Danial"
+          add-paths: |
+            web/public/assets/**
+            web/public/icons/**

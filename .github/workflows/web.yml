@@ -1,0 +1,22 @@
+name: web
+on:
+  push: { branches: [main], paths: ['web/**', 'shared/**', 'content/**', '.github/workflows/web.yml'] }
+  pull_request: { paths: ['web/**', 'shared/**', 'content/**', '.github/workflows/web.yml'] }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @findme/shared test
+      - run: pnpm --filter @findme/web test
+      - run: pnpm --filter @findme/web build
+      - name: Initial JS budget (< 200 KB gzipped)
+        run: |
+          total=$(find web/dist/assets -name '*.js' ! -name '*pixi*' -exec gzip -c {} \; | wc -c)
+          echo "initial JS gzipped: $total bytes"; test "$total" -lt 204800
+      - uses: actions/upload-artifact@v4
+        with: { name: web-dist, path: web/dist }

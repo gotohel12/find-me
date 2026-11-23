@@ -1,0 +1,72 @@
+# Render Blueprint — FIND ME / لقني (Mohsen ~ Danial)
+# Free instances sleep after inactivity; use paid plans for launch (see README).
+services:
+  - type: web
+    name: findme-web
+    runtime: static
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @findme/web build
+    staticPublishPath: web/dist
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: VITE_API_HOST
+        fromService: { type: web, name: findme-api, property: host }
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache
+
+  - type: web
+    name: findme-api
+    runtime: node
+    plan: starter
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --filter @findme/api...
+    preDeployCommand: pnpm --filter @findme/api migrate
+    startCommand: pnpm --filter @findme/api start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase: { name: findme-db, property: connectionString }
+      - key: REDIS_URL
+        fromService: { type: keyvalue, name: findme-redis, property: connectionString }
+      - key: WEB_ORIGIN
+        sync: false   # paste your web URL / custom domain
+      - key: ASSET_BASE
+        sync: false   # e.g. https://findme-web.onrender.com/assets or your CDN
+      - key: ADMIN_TOKEN
+        generateValue: true
+
+  - type: keyvalue
+    name: findme-redis
+    plan: starter
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
+  - type: cron
+    name: findme-daily
+    runtime: node
+    schedule: "0 21 * * *"   # 21:00 UTC = 00:00 Asia/Riyadh
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --filter @findme/api...
+    startCommand: pnpm --filter @findme/api daily
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        fromDatabase: { name: findme-db, property: connectionString }
+
+databases:
+  - name: findme-db
+    plan: basic-256mb
+    databaseName: findme
+    postgresMajorVersion: "16"

@@ -1,0 +1,15 @@
+{
+  "name": "find-me",
+  "private": true,
+  "description": "FIND ME / لقني — daily paint-to-hide web game. By Mohsen ~ Danial.",
+  "author": "Mohsen ~ Danial",
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=22.6" },
+  "scripts": {
+    "dev": "bash scripts/dev.sh",
+    "test": "bash scripts/test_all.sh",
+    "build:web": "pnpm --filter @findme/web build",
+    "art": "python3 blender/build_all.py",
+    "art:preview": "python3 blender/build_all.py --preview"
+  }
+}

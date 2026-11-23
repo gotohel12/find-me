@@ -1,0 +1,21 @@
+{
+  "app.name": "FIND ME",
+  "app.tagline": "Paint yourself. Disappear. Dare your friends.",
+  "credit": "Mohsen ~ Danial",
+  "home.today": "Today's scene",
+  "home.next_in": "Next scene in {time}",
+  "home.hide": "HIDE",
+  "home.seek": "SEEK",
+  "home.streak": "{n}-day streak",
+  "home.level": "Level {n}",
+  "home.loading": "Loading today's scene…",
+  "home.error": "Couldn't reach the server. Check your connection and try again.",
+  "home.retry": "Try again",
+  "soon": "Coming in the next build",
+  "settings.language": "Language",
+  "lang.ar": "العربية",
+  "lang.en": "English",
+  "offline": "You're offline",
+  "about.title": "About",
+  "about.made_by": "Made by"
+}

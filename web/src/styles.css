@@ -1,0 +1,79 @@
+/* FIND ME / لقني — base styles. Mobile-first, RTL-aware (logical properties only). */
+:root {
+  --ink: #1b1440;
+  --ink-2: #2a2160;
+  --paper: #fff8ee;
+  --pink: #ff4f8b;
+  --yellow: #ffd23f;
+  --teal: #19c3b1;
+  --violet: #7b5cff;
+  --radius: 22px;
+  --tap: 56px;
+  --font: 'Baloo Bhaijaan 2', 'Rubik', system-ui, -apple-system, 'Segoe UI', 'Noto Sans Arabic', sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ink); color: var(--paper); font-family: var(--font); }
+body { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+button { font: inherit; color: inherit; cursor: pointer; border: 0; }
+button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+
+/* ---------- splash ---------- */
+.splash {
+  position: fixed; inset: 0; display: grid; place-content: center; gap: 18px; text-align: center;
+  background: radial-gradient(circle at 50% 40%, var(--ink-2), var(--ink) 70%);
+}
+.splash-credit {
+  font-size: clamp(22px, 6vw, 40px); font-weight: 800; letter-spacing: .02em;
+  clip-path: inset(0 100% 0 0); animation: paint-in .7s .1s cubic-bezier(.7, 0, .2, 1) forwards;
+}
+.splash-credit .tilde { color: var(--pink); }
+.splash-logo {
+  display: flex; gap: 14px; justify-content: center; align-items: baseline;
+  font-size: clamp(40px, 13vw, 96px); font-weight: 900; opacity: 0; transform: scale(.6);
+  animation: pop .5s .9s cubic-bezier(.3, 1.6, .5, 1) forwards;
+}
+.splash-logo [lang='ar'] { color: var(--yellow); }
+@keyframes paint-in { to { clip-path: inset(0 0 0 0); } }
+@keyframes pop { to { opacity: 1; transform: scale(1); } }
+
+/* ---------- home ---------- */
+.home {
+  min-height: 100%; display: flex; flex-direction: column; gap: 16px;
+  padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
+  max-width: 1100px; margin-inline: auto;
+}
+.topbar { display: flex; justify-content: space-between; align-items: center; }
+.brand strong { font-size: 28px; font-weight: 900; }
+.chips { display: flex; gap: 8px; }
+.chip { background: var(--ink-2); border-radius: 999px; padding: 8px 14px; font-size: 15px; min-height: 40px; }
+.today-card { background: var(--ink-2); border-radius: var(--radius); padding: 14px; }
+.today-card h2 { margin: 0 0 10px; font-size: 18px; opacity: .8; }
+.scene-img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 16px; display: block; background: #0004; }
+@media (orientation: portrait) { .scene-img { aspect-ratio: 9 / 16; max-height: 52vh; } }
+.scene-title { font-size: 24px; font-weight: 800; margin: 12px 0 2px; }
+.countdown { margin: 0; opacity: .75; font-variant-numeric: tabular-nums; }
+.skeleton { aspect-ratio: 16 / 9; border-radius: 16px; background: linear-gradient(90deg, #ffffff0d, #ffffff1f, #ffffff0d); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.state { text-align: center; padding: 24px 8px; }
+.btn { background: var(--violet); border-radius: 14px; padding: 12px 22px; min-height: var(--tap); font-weight: 700; }
+.big-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.btn-big {
+  min-height: 84px; border-radius: var(--radius); font-size: clamp(26px, 7vw, 40px); font-weight: 900; color: var(--ink);
+  box-shadow: 0 6px 0 #0006; transition: transform .12s, box-shadow .12s;
+}
+.btn-big:active { transform: translateY(4px); box-shadow: 0 2px 0 #0006; }
+.btn-big:disabled { opacity: .5; }
+.btn-big.hide { background: var(--yellow); }
+.btn-big.seek { background: var(--teal); }
+.credit { text-align: center; opacity: .6; font-size: 14px; margin-top: auto; }
+.toast {
+  position: fixed; inset-inline: 0; bottom: max(24px, env(safe-area-inset-bottom)); margin-inline: auto; width: fit-content;
+  background: var(--paper); color: var(--ink); padding: 12px 20px; border-radius: 999px; font-weight: 700;
+  animation: pop .25s ease-out forwards; opacity: 0;
+}
+.offline-banner { background: var(--pink); color: #fff; text-align: center; padding: 6px; font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition: none !important; }
+}

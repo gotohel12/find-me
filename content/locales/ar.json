@@ -1,0 +1,21 @@
+{
+  "app.name": "لقني",
+  "app.tagline": "لوّن نفسك. اختفِ. وتحدَّ ربعك.",
+  "credit": "Mohsen ~ Danial",
+  "home.today": "مشهد اليوم",
+  "home.next_in": "المشهد الجاي بعد {time}",
+  "home.hide": "اختبئ",
+  "home.seek": "دوّر",
+  "home.streak": "سلسلة {n} يوم",
+  "home.level": "المستوى {n}",
+  "home.loading": "جاري تحميل مشهد اليوم…",
+  "home.error": "ما قدرنا نوصل للسيرفر. تأكد من اتصالك وحاول مرة ثانية.",
+  "home.retry": "حاول مرة ثانية",
+  "soon": "قريبًا في التحديث الجاي",
+  "settings.language": "اللغة",
+  "lang.ar": "العربية",
+  "lang.en": "English",
+  "offline": "أنت غير متصل",
+  "about.title": "عن اللعبة",
+  "about.made_by": "من تطوير"
+}
