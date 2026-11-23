@@ -53,6 +53,16 @@ jobs:
             ${{ (github.event_name == 'pull_request' || inputs.preview) && '--preview' || '' }} \
             ${{ inputs.only && format('--only {0}', inputs.only) || '' }}
       - run: python blender/build_all.py --verify
+      - name: Review sheets -> branch art-review (so they can be viewed without artifact downloads)
+        if: always()
+        run: |
+          python tools/contact_sheet.py --art build/art --out /tmp/review
+          cd /tmp/review
+          git init -q -b art-review
+          git config user.name "FIND ME art CI"; git config user.email "art-ci@users.noreply.github.com"
+          echo "Art review — run ${{ github.run_id }} ($(date -u +%F' '%T) UTC). Developed by Mohsen ~ Danial. © 2026 MD Studio." > README.md
+          git add -A && git commit -qm "art review ${{ github.run_id }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" art-review
       - uses: actions/upload-artifact@v4
         with: { name: art-build, path: build/art, retention-days: 7 }
       - uses: actions/upload-artifact@v4
