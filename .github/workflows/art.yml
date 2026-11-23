@@ -35,8 +35,17 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p ~/blender
-          curl -fsSL "https://download.blender.org/release/Blender4.2/blender-${BLENDER_VERSION}-linux-x64.tar.xz" \
-            | tar -xJ -C ~/blender --strip-components=1
+          f="blender-${BLENDER_VERSION}-linux-x64.tar.xz"
+          for base in https://download.blender.org/release/Blender4.2 \
+                      https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2 \
+                      https://ftp.nluug.nl/pub/graphics/blender/release/Blender4.2 \
+                      https://mirror.clarkson.edu/blender/release/Blender4.2; do
+            echo "trying $base"
+            if curl -fsSL -A "Mozilla/5.0 (FIND ME art CI)" --retry 3 -o /tmp/blender.tar.xz "$base/$f"; then break; fi
+          done
+          test -s /tmp/blender.tar.xz
+          tar -xJf /tmp/blender.tar.xz -C ~/blender --strip-components=1
+          ~/blender/blender --version | head -1
       - run: sudo apt-get update && sudo apt-get install -y libxi6 libxkbcommon0 libxrender1 libsm6 libgl1
       - name: Render
         run: |
