@@ -158,18 +158,13 @@ def setup_pass_outputs(scene, out_dir: str, passes: list[str]) -> None:
     fo.base_path = out_dir
     fo.format.file_format = "OPEN_EXR"
     fo.format.color_depth = "32"
+    fo.format.color_mode = "RGBA"
     fo.format.exr_codec = "ZIP"
+    fo.file_slots.clear()
     for i, name in enumerate(passes):
-        socket_name, mode = PASS_SOCKETS[name]
-        if i == 0:
-            slot = fo.file_slots[0]
-            slot.path = f"{name}_"
-        else:
-            slot = fo.file_slots.new(f"{name}_")
-        slot.use_node_format = False
-        slot.format.file_format = "OPEN_EXR"
-        slot.format.color_depth = "32"
-        slot.format.color_mode = mode
+        socket_name, _mode = PASS_SOCKETS[name]
+        fo.file_slots.new(f"{name}_")
+        # every slot inherits the node's float EXR format; single-channel passes land in R
         tree.links.new(rl.outputs[socket_name], fo.inputs[i])
 
 
