@@ -64,7 +64,7 @@ export function Hide({ scene, onSubmit, onBack }: { scene: SceneData; onSubmit: 
   const [patchLeft, setPatchLeft] = useState(3);
   const [showPoses, setShowPoses] = useState(false);
   const [showColor, setShowColor] = useState(false);
-  const [left, setLeft] = useState(FAIRNESS.hideTimeLimitMs);
+  const [left, setLeft] = useState<number>(FAIRNESS.hideTimeLimitMs);
   const [, bump] = useState(0);
   const [loupe, setLoupe] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
