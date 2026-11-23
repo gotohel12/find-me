@@ -2,8 +2,12 @@
 export interface Config {
   port: number;
   host: string;
-  databaseUrl: string;
-  redisUrl: string;
+  /** Empty = run without a database (today's scene still works). */
+  databaseUrl: string | null;
+  /** Empty = in-memory rate limits. */
+  redisUrl: string | null;
+  /** Built web app to serve (same origin as the API). */
+  webDist: string | null;
   /** Public URL of the web app, used in challenge links and CORS. */
   webOrigin: string;
   /** Base URL where packed assets are served (CDN in production). */
@@ -14,19 +18,14 @@ export interface Config {
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const mode = (env.NODE_ENV ?? 'development') as Config['env'];
-  const need = (k: string, dev: string): string => {
-    const v = env[k];
-    if (v) return v;
-    if (mode === 'production') throw new Error(`missing env var ${k}`);
-    return dev;
-  };
   return {
     port: Number(env.PORT ?? 8787),
     host: env.HOST ?? '0.0.0.0',
-    databaseUrl: need('DATABASE_URL', 'postgres://postgres@localhost:5432/findme'),
-    redisUrl: need('REDIS_URL', 'redis://localhost:6379'),
-    webOrigin: need('WEB_ORIGIN', 'http://localhost:5173'),
-    assetBase: need('ASSET_BASE', 'http://localhost:5173/assets'),
+    databaseUrl: env.DATABASE_URL || (mode === 'production' ? null : 'postgres://postgres@localhost:5432/findme'),
+    redisUrl: env.REDIS_URL || null,
+    webDist: env.WEB_DIST ?? (mode === 'production' ? 'web/dist' : null),
+    webOrigin: env.WEB_ORIGIN ?? env.RENDER_EXTERNAL_URL ?? 'http://localhost:5173',
+    assetBase: env.ASSET_BASE ?? '/assets',
     adminToken: env.ADMIN_TOKEN || null,
     env: mode,
   };

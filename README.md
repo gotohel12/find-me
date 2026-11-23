@@ -1,6 +1,8 @@
 # FIND ME — لقني
 
-**A daily paint-to-hide web game. By Mohsen ~ Danial.**
+**A daily paint-to-hide web game. Developed by Mohsen ~ Danial.**
+
+© 2026 MD Studio. All rights reserved.
 
 Every day one new scene drops at 00:00 Riyadh time. **Hide**: place the little white figure, paint it until it disappears, submit. **Seek**: find other players' hides as fast as you can. **Share**: send a "Can you find me? 👀" link that opens straight into your hide, with no download and no signup.
 
@@ -45,26 +47,29 @@ Without Blender installed, run the **art** workflow in GitHub Actions (Actions �
 
 ## Run locally
 
-Needs Node 22+, pnpm (`corepack enable`), Docker, Python 3 with Pillow + numpy, and optionally Blender 4.2 LTS.
+Needs Node 22+, Docker, Python 3 with Pillow + numpy, and optionally Blender 4.2 LTS.
 
 ```bash
-pnpm install
-pnpm art:preview        # quick low-res art (needs Blender); or download the art workflow artifact
-pnpm dev                # Postgres + Redis in Docker, API on :8787, web on :5173
-pnpm test               # everything that runs without Blender
+npm install
+npm run art:preview     # quick low-res art (needs Blender); or download the art workflow artifact
+npm run dev             # Postgres + Redis in Docker, API on :8787, web on :5173
+npm test                # everything that runs without Blender
 ```
 
-## Deploy (the only manual steps)
+## Deploy
 
-1. Create a **GitHub** account and push this repo.
-2. Create a **Render** account → **New → Blueprint** → pick the repo. Render reads `render.yaml` and creates `findme-web`, `findme-api`, `findme-db`, `findme-redis` and the `findme-daily` cron.
-3. In `findme-api` → Environment, set `WEB_ORIGIN` (your web URL) and `ASSET_BASE` (`<web URL>/assets`).
-4. Commit `pnpm-lock.yaml` after your first `pnpm install` (the Blueprint installs with `--frozen-lockfile`).
+Live on the existing free Render service **emberwing** (`https://emberwing.onrender.com`). One web service serves the game and the API:
 
-**Honest note:** Render's free instances sleep after inactivity, so a cold challenge link can take ~30 s. Use paid instances (`starter` and up) for launch; the Blueprint already asks for them on the API and Redis.
+- Build: `npm install --include=dev && npm run build` · Start: `npm start` · Health: `/health`
+- `DATABASE_URL` (Render → emberwing → Environment): a free **Neon** Postgres connection string. Without it the game still loads; accounts and hides need it.
+- No cron job and no Redis (both optional): today's scene comes from `content/schedule.json`.
+
+**Honest note:** free Render instances sleep after ~15 minutes idle, so the first visit after a quiet spell can take ~30–60 s.
 
 Packed web assets are kept in plain git (each file < 600 KB) so Render gets them on clone; only large sources (`*.blend`, `*.exr`, masters, audio sources) use Git LFS.
 
 ## Credits
 
-Game design, code and art pipeline: **Mohsen ~ Danial**. See `CREDITS.md` for third-party licences.
+**Developed by Mohsen ~ Danial.** See `CREDITS.md` for third-party licences.
+
+© 2026 MD Studio. All rights reserved.

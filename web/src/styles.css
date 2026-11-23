@@ -25,13 +25,15 @@ button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
 }
 .splash-credit {
   font-size: clamp(22px, 6vw, 40px); font-weight: 800; letter-spacing: .02em;
-  clip-path: inset(0 100% 0 0); animation: paint-in .7s .1s cubic-bezier(.7, 0, .2, 1) forwards;
+  clip-path: inset(0 100% 0 0); animation: paint-in .7s .4s cubic-bezier(.7, 0, .2, 1) forwards;
 }
-.splash-credit .tilde { color: var(--pink); }
+.splash-studio { font-size: clamp(34px, 10vw, 72px); font-weight: 900; letter-spacing: .04em; animation: pop .5s .1s cubic-bezier(.3, 1.6, .5, 1) forwards; opacity: 0; transform: scale(.6); }
+.splash-studio .md { color: var(--pink); }
+.splash-copy { position: absolute; inset-inline: 0; bottom: max(18px, env(safe-area-inset-bottom)); font-size: 12px; opacity: .55; }
 .splash-logo {
   display: flex; gap: 14px; justify-content: center; align-items: baseline;
   font-size: clamp(40px, 13vw, 96px); font-weight: 900; opacity: 0; transform: scale(.6);
-  animation: pop .5s .9s cubic-bezier(.3, 1.6, .5, 1) forwards;
+  animation: pop .5s .05s cubic-bezier(.3, 1.6, .5, 1) forwards;
 }
 .splash-logo [lang='ar'] { color: var(--yellow); }
 @keyframes paint-in { to { clip-path: inset(0 0 0 0); } }
@@ -66,7 +68,8 @@ button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
 .btn-big:disabled { opacity: .5; }
 .btn-big.hide { background: var(--yellow); }
 .btn-big.seek { background: var(--teal); }
-.credit { text-align: center; opacity: .6; font-size: 14px; margin-top: auto; }
+.credit { text-align: center; opacity: .6; font-size: 14px; margin-top: auto; display: grid; gap: 2px; }
+.credit small { font-size: 12px; opacity: .85; }
 .toast {
   position: fixed; inset-inline: 0; bottom: max(24px, env(safe-area-inset-bottom)); margin-inline: auto; width: fit-content;
   background: var(--paper); color: var(--ink); padding: 12px 20px; border-radius: 999px; font-weight: 700;

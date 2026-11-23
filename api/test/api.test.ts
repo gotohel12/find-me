@@ -18,10 +18,10 @@ let app: FastifyInstance;
 let admin: pg.Client;
 
 before(async () => {
-  admin = new pg.Client({ connectionString: base.databaseUrl });
+  admin = new pg.Client({ connectionString: base.databaseUrl! });
   await admin.connect();
   await admin.query(`CREATE DATABASE ${dbName}`);
-  const url = new URL(base.databaseUrl);
+  const url = new URL(base.databaseUrl!);
   url.pathname = `/${dbName}`;
   const c = new pg.Client({ connectionString: url.toString() });
   await c.connect();

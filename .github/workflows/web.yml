@@ -7,13 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @findme/shared test
-      - run: pnpm --filter @findme/web test
-      - run: pnpm --filter @findme/web build
+        with: { node-version: 22, cache: npm, cache-dependency-path: package.json }
+      - run: npm install
+      - run: npm run test -w @findme/shared
+      - run: npm run test -w @findme/web
+      - run: npm run build -w @findme/web
+        env: { FINDME_SKIP_BUILD: '1' }
       - name: Initial JS budget (< 200 KB gzipped)
         run: |
           total=$(find web/dist/assets -name '*.js' ! -name '*pixi*' -exec gzip -c {} \; | wc -c)

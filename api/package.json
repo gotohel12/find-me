@@ -6,7 +6,7 @@
   "engines": { "node": ">=22.6" },
   "scripts": {
     "dev": "node --watch --experimental-strip-types src/server.ts",
-    "start": "node --experimental-strip-types src/server.ts",
+    "start": "NODE_ENV=production node --experimental-strip-types src/server.ts",
     "migrate": "node --experimental-strip-types src/migrate.ts",
     "daily": "node --experimental-strip-types src/jobs/daily.ts",
     "typecheck": "tsc --noEmit",
@@ -15,7 +15,8 @@
   "dependencies": {
     "@fastify/cors": "^10.0.1",
     "@fastify/rate-limit": "^10.2.1",
-    "@findme/shared": "workspace:*",
+    "@fastify/static": "^8.0.3",
+    "@findme/shared": "*",
     "fastify": "^5.2.0",
     "ioredis": "^5.4.2",
     "pg": "^8.13.1"

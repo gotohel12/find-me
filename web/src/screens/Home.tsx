@@ -10,16 +10,19 @@ export function Home() {
   const [error, setError] = useState(false);
   const [left, setLeft] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+  const [imgOk, setImgOk] = useState(true);
 
   const load = () => {
     setError(false);
-    Promise.all([api.today(), api.ensurePlayer(lang)])
-      .then(([d, p]) => {
+    api
+      .today()
+      .then((d) => {
         setToday(d);
-        setPlayer(p);
         setLeft(d.nextReleaseInMs);
       })
       .catch(() => setError(true));
+    // A guest profile is optional for the home screen (works before the database is connected).
+    api.ensurePlayer(lang).then(setPlayer, () => setPlayer(null));
   };
   useEffect(load, []);
 
@@ -69,10 +72,18 @@ export function Home() {
           <div class="skeleton" aria-label={t('home.loading')} />
         ) : (
           <>
-            <picture>
-              <source type="image/avif" srcset={`${base}beauty.avif`} />
-              <img class="scene-img" src={`${base}beauty.webp`} alt={today.scene.title[lang]} decoding="async" />
-            </picture>
+            {imgOk && (
+              <picture>
+                <source type="image/avif" srcset={`${base}beauty.avif`} />
+                <img
+                  class="scene-img"
+                  src={`${base}beauty.webp`}
+                  alt={today.scene.title[lang]}
+                  decoding="async"
+                  onError={() => setImgOk(false)}
+                />
+              </picture>
+            )}
             <p class="scene-title">{today.scene.title[lang]}</p>
             <p class="countdown" aria-live="off">
               {t('home.next_in', { time: formatCountdown(left) })}
@@ -91,7 +102,8 @@ export function Home() {
       </nav>
 
       <footer class="credit" dir="ltr">
-        {t('about.made_by')} <b>Mohsen ~ Danial</b>
+        <b>{t('credit')}</b>
+        <small>{t('copyright')}</small>
       </footer>
       {toast && (
         <div class="toast" role="status">

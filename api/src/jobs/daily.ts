@@ -35,7 +35,9 @@ export async function runDaily(client: pg.ClientBase, now = Date.now()): Promise
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const client = new pg.Client({ connectionString: loadConfig().databaseUrl });
+  const url = loadConfig().databaseUrl;
+  if (!url) throw new Error('DATABASE_URL is not set');
+  const client = new pg.Client({ connectionString: url });
   await client.connect();
   try {
     await migrate(client);

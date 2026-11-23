@@ -26,6 +26,6 @@ test('Arabic and English have the same keys', () => {
 });
 
 test('credit is present in both languages', () => {
-  assert.equal(translate('ar', 'credit'), 'Mohsen ~ Danial');
-  assert.equal(translate('en', 'credit'), 'Mohsen ~ Danial');
+  assert.equal(translate('ar', 'credit'), 'Developed by Mohsen ~ Danial');
+  assert.equal(translate('en', 'copyright'), '© 2026 MD Studio. All rights reserved.');
 });

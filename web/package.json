@@ -11,7 +11,7 @@
     "test": "node --test test/*.test.ts"
   },
   "dependencies": {
-    "@findme/shared": "workspace:*",
+    "@findme/shared": "*",
     "pixi.js": "^8.6.6",
     "preact": "^10.25.4"
   },

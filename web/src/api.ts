@@ -1,8 +1,7 @@
 /** API client. Guest token lives in localStorage; created on first launch. */
 const TOKEN_KEY = 'findme.token';
-// In production Render injects the API host; in dev Vite proxies /v1 to the local API.
-const HOST = import.meta.env.VITE_API_HOST as string | undefined;
-const BASE = HOST ? `https://${HOST}` : '';
+// Same origin in production (one service serves game + API); Vite proxies /v1 in dev.
+const BASE = '';
 
 export interface Today {
   day: string;

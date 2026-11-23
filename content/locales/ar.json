@@ -1,7 +1,7 @@
 {
   "app.name": "لقني",
   "app.tagline": "لوّن نفسك. اختفِ. وتحدَّ ربعك.",
-  "credit": "Mohsen ~ Danial",
+  "credit": "Developed by Mohsen ~ Danial",
   "home.today": "مشهد اليوم",
   "home.next_in": "المشهد الجاي بعد {time}",
   "home.hide": "اختبئ",
@@ -17,5 +17,6 @@
   "lang.en": "English",
   "offline": "أنت غير متصل",
   "about.title": "عن اللعبة",
-  "about.made_by": "من تطوير"
+  "about.made_by": "من تطوير",
+  "copyright": "© 2026 MD Studio. All rights reserved."
 }

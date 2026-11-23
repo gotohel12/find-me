@@ -1,7 +1,7 @@
 {
   "app.name": "FIND ME",
   "app.tagline": "Paint yourself. Disappear. Dare your friends.",
-  "credit": "Mohsen ~ Danial",
+  "credit": "Developed by Mohsen ~ Danial",
   "home.today": "Today's scene",
   "home.next_in": "Next scene in {time}",
   "home.hide": "HIDE",
@@ -17,5 +17,6 @@
   "lang.en": "English",
   "offline": "You're offline",
   "about.title": "About",
-  "about.made_by": "Made by"
+  "about.made_by": "Made by",
+  "copyright": "© 2026 MD Studio. All rights reserved."
 }

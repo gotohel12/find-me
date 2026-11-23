@@ -20,9 +20,8 @@ jobs:
       REDIS_URL: redis://localhost:6379
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @findme/api typecheck
-      - run: pnpm --filter @findme/api test
+        with: { node-version: 22, cache: npm, cache-dependency-path: package.json }
+      - run: npm install
+      - run: npm run typecheck -w @findme/api
+      - run: npm run test -w @findme/api

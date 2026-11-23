@@ -1,14 +1,23 @@
 {
   "name": "find-me",
   "private": true,
-  "description": "FIND ME / لقني — daily paint-to-hide web game. By Mohsen ~ Danial.",
+  "description": "FIND ME / لقني — daily paint-to-hide web game. Developed by Mohsen ~ Danial. © 2026 MD Studio. All rights reserved.",
   "author": "Mohsen ~ Danial",
-  "packageManager": "pnpm@10.28.0",
-  "engines": { "node": ">=22.6" },
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.6"
+  },
+  "workspaces": [
+    "shared",
+    "web",
+    "api"
+  ],
   "scripts": {
+    "postinstall": "node scripts/postinstall.mjs",
+    "build": "npm run build -w @findme/web",
+    "start": "npm start -w @findme/api",
     "dev": "bash scripts/dev.sh",
     "test": "bash scripts/test_all.sh",
-    "build:web": "pnpm --filter @findme/web build",
     "art": "python3 blender/build_all.py",
     "art:preview": "python3 blender/build_all.py --preview"
   }

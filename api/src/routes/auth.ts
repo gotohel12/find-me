@@ -10,6 +10,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       const locale = req.body?.locale === 'en' ? 'en' : 'ar';
       const token = newToken();
       const { db } = app.deps;
+      if (!db) throw Object.assign(new Error('database not configured'), { statusCode: 503 });
       for (let attempt = 0; attempt < 5; attempt++) {
         try {
           const r = await db.query(
@@ -33,6 +34,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   app.get('/me', async (req, reply) => {
     const t = bearer(req);
     if (!t) return reply.code(401).send({ error: 'no_token' });
+    if (!app.deps.db) return reply.code(503).send({ error: 'db_unavailable' });
     const r = await app.deps.db.query(
       `UPDATE device_tokens SET last_seen_at = now() WHERE token_hash = $1
        RETURNING (SELECT row_to_json(x) FROM (

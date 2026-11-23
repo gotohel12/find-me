@@ -14,8 +14,11 @@ export async function todayRoutes(app: FastifyInstance): Promise<void> {
     const today = dayKey();
     const day = req.query.day ?? today;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || day > today) return reply.code(400).send({ error: 'bad_day' });
-    const r = await app.deps.db.query('SELECT scene_id FROM daily_scenes WHERE day = $1', [day]);
-    const sceneId: string = r.rows[0]?.scene_id ?? sceneForDay(schedule, day);
+    const { db } = app.deps;
+    const row = db
+      ? await db.query('SELECT scene_id FROM daily_scenes WHERE day = $1', [day]).then((r) => r.rows[0], () => undefined)
+      : undefined;
+    const sceneId: string = row?.scene_id ?? sceneForDay(schedule, day);
     const scene = catalogue[sceneId];
     if (!scene) return reply.code(500).send({ error: 'scene_missing', sceneId });
     reply.header('Cache-Control', day < today ? 'public, max-age=86400' : 'public, max-age=30');
