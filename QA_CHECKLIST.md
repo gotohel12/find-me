@@ -13,4 +13,5 @@ Ticked only when verified, with how. `[~]` = written, waits for a machine with t
 - [~] Blender renders (character, s001 toy shop, app icon) — needs Blender 4.2: run the **art** workflow
 - [~] API typecheck + integration tests (`api/test/api.test.ts`) — need `pnpm install`: run by the **api** workflow
 - [~] Web typecheck, production build, 200 KB initial-JS budget — need `pnpm install`: run by the **web** workflow
+- [x] Paint engine core: 8 tests (brush clipped to body part, soft edge, per-part bucket incl. both arms, undo/redo capped at 30, eraser, tinted pattern stamps, scene-matched lighting + AO, colour helpers)
 - [ ] Screens checked visually in AR + EN, phone + desktop (after first art render)

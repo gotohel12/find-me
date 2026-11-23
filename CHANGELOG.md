@@ -3,6 +3,7 @@
 ## [Unreleased] — Phase 0: Foundation
 
 ### Added
+- `shared/src/paint.ts`: paint engine core (brush, eraser, per-part bucket, pattern stamps, smudge, 30-step undo/redo, scene-matched lighting) shared by the editor and the server compositor.
 - `shared/`: game rules shared by client and server. Riyadh-midnight day keys, countdown and scene rotation with overrides; seeker points, streak multiplier, emoji result row; the "hard but findable" hider score (peak at 15–50 % find rate, never-found hides score below found-by-a-few); levels 1–100; placement transform; server-side hit test with occlusion and tap tolerance; fairness checks (min size, ≥ 40 % visible, scale/rotation limits, forbidden zones, off-screen); challenge/friend codes.
 - `blender/lib/fm.py`: headless Cycles setup with GPU auto-detect, data passes written as EXR and converted to .npy inside Blender, camera/light metadata in camera space, procedural pattern materials (stripes, checker, dots, noise, waves, wood grain, plaid, tiles, bricks).
 - `blender/lib/kit.py`: prop kit (shelves, toy boxes, balls, block stacks, plush creatures, toy cars, jars, spinning tops, stacking rings, book rows, rugs, pendant lamps).
