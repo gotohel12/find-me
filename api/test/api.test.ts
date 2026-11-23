@@ -62,7 +62,7 @@ test('today returns the published scene and a countdown', async () => {
   assert.equal(r.statusCode, 200);
   const body = r.json();
   assert.equal(body.day, dayKey());
-  assert.equal(body.scene.id, 's001_toy_shop');
+  assert.match(body.scene.id, /^s\d{3}_/);
   assert.ok(body.nextReleaseInMs > 0 && body.nextReleaseInMs <= 86_400_000);
   const future = await app.inject({ method: 'GET', url: '/v1/today?day=2999-01-01' });
   assert.equal(future.statusCode, 400, 'no peeking at future scenes');

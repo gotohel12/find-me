@@ -49,7 +49,7 @@ def run_job(blender: str, name: str, script: str, out: str, extra: list[str]) ->
     t0 = time.time()
     cmd = [blender, "-b", "--factory-startup", "--python-exit-code", "1", "--python", script, "--", "--out", out, *extra]
     p = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True)
-    log = p.stdout[-4000:] + p.stderr[-4000:]
+    log = p.stdout[-12000:] + p.stderr[-6000:]
     return name, time.time() - t0, p.returncode, log
 
 
@@ -99,6 +99,9 @@ def main() -> int:
         for f in cf.as_completed(futs):
             name, secs, code, log = f.result()
             print(f"  {'ok ' if code == 0 else 'ERR'} {name:<28} {secs:6.1f}s")
+            for line in log.splitlines():
+                if line.startswith(("[room]", "[fm]", "[hider] stand", "[icon]")):
+                    print("      " + line)
             if code != 0:
                 failed.append(name)
                 print(log)

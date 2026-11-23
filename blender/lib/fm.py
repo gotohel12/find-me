@@ -2,7 +2,7 @@
 FIND ME — shared Blender helpers (Blender 4.2 LTS, run headless).
 
 Everything here is called from generator scripts as:
-    blender -b --factory-startup --python blender/scenes/s001_toy_shop.py -- --out build/art --preview
+    blender -b --factory-startup --python blender/scenes/s001_kitchen.py -- --out build/art --preview
 
 Conventions
 - Units are metres. +Z up. Cameras look roughly along +Y.

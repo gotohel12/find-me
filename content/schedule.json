@@ -1,5 +1,5 @@
 {
   "epoch": "2026-12-01",
-  "rotation": ["s001_toy_shop"],
+  "rotation": ["s001_kitchen", "s002_workshop", "s003_living_room"],
   "overrides": {}
 }

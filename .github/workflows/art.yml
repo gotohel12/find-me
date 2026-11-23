@@ -47,16 +47,25 @@ jobs:
           tar -xJf /tmp/blender.tar.xz -C ~/blender --strip-components=1
           ~/blender/blender --version | head -1
       - run: sudo apt-get update && sudo apt-get install -y libxi6 libxkbcommon0 libxrender1 libsm6 libgl1
+      - name: Cache Poly Haven assets
+        uses: actions/cache@v4
+        with:
+          path: build/asset_cache
+          key: polyhaven-${{ hashFiles('blender/scenes/*.py', 'blender/lib/room.py') }}
+          restore-keys: polyhaven-
       - name: Render
         run: |
           BLENDER=$HOME/blender/blender python blender/build_all.py -j 2 \
             ${{ (github.event_name == 'pull_request' || inputs.preview) && '--preview' || '' }} \
-            ${{ inputs.only && format('--only {0}', inputs.only) || '' }}
+            ${{ inputs.only && format('--only {0}', inputs.only) || '' }} 2>&1 | tee /tmp/render.log; exit ${PIPESTATUS[0]}
       - run: python blender/build_all.py --verify
       - name: Review sheets -> branch art-review (so they can be viewed without artifact downloads)
         if: always()
         run: |
           python tools/contact_sheet.py --art build/art --out /tmp/review
+          python tools/polyhaven_catalog.py /tmp/review/polyhaven_catalog.txt || true
+          for f in build/art/scenes/*/credits.json; do [ -f "$f" ] && cp "$f" "/tmp/review/$(basename $(dirname $f))_credits.json"; done
+          cp /tmp/render.log /tmp/review/render.log 2>/dev/null || true
           cd /tmp/review
           git init -q -b art-review
           git config user.name "FIND ME art CI"; git config user.email "art-ci@users.noreply.github.com"

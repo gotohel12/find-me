@@ -1,3 +1,5 @@
 {
-  "s001_toy_shop": { "en": "Toy Shop", "ar": "محل الألعاب", "theme": "toy_shop" }
+  "s001_kitchen": { "en": "Kitchen", "ar": "المطبخ", "theme": "kitchen" },
+  "s002_workshop": { "en": "Workshop", "ar": "الورشة", "theme": "garage" },
+  "s003_living_room": { "en": "Living Room", "ar": "غرفة المعيشة", "theme": "living_room" }
 }
