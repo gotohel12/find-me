@@ -126,6 +126,19 @@ export class PaintTexture {
     }
   }
 
+  /** Tile a full-colour patch (e.g. sampled from the scene) over a part. */
+  tilePart(part: PartId, patch: { width: number; height: number; data: Uint8ClampedArray }, opacity = 1): void {
+    for (const [x0, y0, x1, y1] of partRectsPx(part)) {
+      for (let y = y0; y <= y1; y++) {
+        for (let x = x0; x <= x1; x++) {
+          const pi = (((y - y0) % patch.height) * patch.width + ((x - x0) % patch.width)) * 4;
+          const i = (y * PAINT_SIZE + x) * 4;
+          for (let k = 0; k < 3; k++) this.data[i + k] = this.data[i + k] + (patch.data[pi + k] - this.data[i + k]) * opacity;
+        }
+      }
+    }
+  }
+
   /** Smudge: drag colour from (u0,v0) toward (u1,v1). */
   smudge(u0: number, v0: number, u1: number, v1: number, radiusPx: number, strength = 0.5): void {
     const [x0, y0] = PaintTexture.texel(u0, v0);

@@ -76,3 +76,11 @@ test('colour helpers', () => {
   assert.deepEqual(hsvToRgb(0, 1, 1), [255, 0, 0]);
   assert.deepEqual(pushRecent(['#aaaaaa', '#BBBBBB'.toLowerCase()], '#AAAAAA'), ['#aaaaaa', '#bbbbbb']);
 });
+
+test('tilePart copies a colour patch onto one part only', () => {
+  const p = new PaintTexture();
+  const patch = { width: 2, height: 2, data: new Uint8ClampedArray([10, 20, 30, 255, 10, 20, 30, 255, 10, 20, 30, 255, 10, 20, 30, 255]) };
+  p.tilePart(2, patch);
+  assert.deepEqual(p.get(...PaintTexture.texel(0.75, 0.75)), [10, 20, 30]);
+  assert.deepEqual(p.get(...PaintTexture.texel(0.25, 0.75)), [235, 235, 235]);
+});

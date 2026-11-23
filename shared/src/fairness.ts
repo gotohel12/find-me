@@ -89,11 +89,21 @@ export function checkFairness(c: HideCandidate, scene: SceneMasks): FairnessRepo
   const visibleFrac = total > 0 ? visible / total : 0;
   if (visibleFrac < FAIRNESS.minVisibleFrac) issues.push('too_occluded');
   const heightPx = visible > 0 ? maxY - minY + 1 : 0;
-  const unoccludedHeight = c.sprite.mask.height * p.scale;
+  const unoccludedHeight = silhouetteHeight(c.sprite) * p.scale;
   if (unoccludedHeight < FAIRNESS.minHeightFrac * Math.min(scene.width, scene.height)) {
     issues.push('too_small');
   }
   return { ok: issues.length === 0, issues, totalPx: total, visiblePx: visible, visibleFrac, heightPx };
+}
+
+/** Height in sprite pixels of the covered rows. */
+function silhouetteHeight(s: Sprite): number {
+  const { width: w, height: h, data } = s.mask;
+  let top = -1;
+  let bottom = -1;
+  for (let y = 0; y < h && top < 0; y++) for (let x = 0; x < w; x++) if (data[y * w + x] > 0) { top = y; break; }
+  for (let y = h - 1; y >= 0 && bottom < 0; y--) for (let x = 0; x < w; x++) if (data[y * w + x] > 0) { bottom = y; break; }
+  return top < 0 ? 0 : bottom - top + 1;
 }
 
 /** Expected scene-pixel area of the silhouette (unclipped). */

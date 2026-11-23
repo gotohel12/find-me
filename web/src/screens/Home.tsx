@@ -3,7 +3,7 @@ import { formatCountdown } from '@findme/shared';
 import { useI18n } from '../app.tsx';
 import { api, type Player, type Today } from '../api.ts';
 
-export function Home() {
+export function Home({ onHide }: { onHide: (sceneId: string) => void }) {
   const { t, lang, setLang } = useI18n();
   const [today, setToday] = useState<Today | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
@@ -93,7 +93,7 @@ export function Home() {
       </section>
 
       <nav class="big-actions">
-        <button class="btn-big hide" onClick={soon} disabled={!today}>
+        <button class="btn-big hide" onClick={() => today && onHide(today.scene.id)} disabled={!today}>
           {t('home.hide')}
         </button>
         <button class="btn-big seek" onClick={soon} disabled={!today}>
