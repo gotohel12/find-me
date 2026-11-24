@@ -241,13 +241,13 @@ def main():
             os.makedirs(out, exist_ok=True)
 
             # 1) pretty studio render (menus, pose picker)
-            fm.configure_render(scene, px, px, 24 if args.preview else 256, transparent=True)
+            fm.configure_render(scene, px, px, 24 if args.preview else 96, transparent=True)
             enable_passes(vl, False)
             scene.use_nodes = False
             fm.render_still(scene, os.path.join(out, "shade.png"))
 
             # 2) data render: no pixel filter -> exact UV / part ids
-            fm.configure_render(scene, px, px, 16 if args.preview else 128, transparent=True, data_only=True)
+            fm.configure_render(scene, px, px, 8 if args.preview else 32, transparent=True, data_only=True)
             fm.enable_passes(vl, depth=False, normal=True, index=True, uv=True, ao=True)
             fm.setup_pass_outputs(scene, out, ["uv", "index", "normal", "ao", "alpha"])
             fm.render_still(scene, None)

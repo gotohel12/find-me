@@ -591,7 +591,7 @@ def export_scene(scene, spec: SceneSpec, args) -> None:
         cam = spec.cameras[orient]
         scene.camera = cam
         w, h = RES[orient]
-        samples = 384
+        samples = int(os.environ.get('FINDME_SCENE_SAMPLES', '160'))  # OIDN-denoised
         if args.preview:
             w, h, samples = w // 4, h // 4, 32
         out = os.path.join(root, orient)

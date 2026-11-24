@@ -73,6 +73,14 @@ def _hide(root):
         o.hide_viewport = True
 
 
+def _try_import(aid, **kw):
+    try:
+        return assets.import_model(aid, **kw)
+    except Exception as e:  # an asset without a usable download must not sink the scene
+        print(f"[room] import failed for {aid}: {e}")
+        return None
+
+
 def _available(ids, kind="models"):
     cat = assets.catalog(kind)
     missing = [i for i in ids if i not in cat]
@@ -120,7 +128,9 @@ def place_furniture(t: Theme, rng: random.Random) -> list:
     for aid in ids:
         if len(placed) >= t.n_big:
             break
-        root = assets.import_model(aid)
+        root = _try_import(aid)
+        if root is None:
+            continue
         s = _size(root)
         if not (0.3 <= s.z <= H - 0.25 and max(s.x, s.y) <= 2.8):
             print(f"[room] furniture {aid} rejected, size {s.x:.2f}x{s.y:.2f}x{s.z:.2f}")
@@ -175,7 +185,9 @@ def _instance(template, location, rot_z):
 def _templates(ids, rng, max_dim):
     out = []
     for k, aid in enumerate(_available(ids)):
-        root = assets.import_model(aid, location=(0, -60 - k * 2.5, 0))
+        root = _try_import(aid, location=(0, -60 - k * 2.5, 0))
+        if root is None:
+            continue
         s = _size(root)
         if max(s.x, s.y, s.z) > max_dim or max(s.x, s.y, s.z) < 0.03:
             print(f"[room] prop {aid} rejected, size {s.x:.2f}x{s.y:.2f}x{s.z:.2f}")
@@ -256,11 +268,17 @@ def hang_decor(t: Theme, rng: random.Random, n: int = 6):
     count = 0
     slots = sorted(rng.uniform(-W / 2 + 0.4, W / 2 - 0.4) for _ in range(n * 3))
     used: list[tuple[float, float]] = []
+    bag: list[str] = []
     for x in slots:
         if count >= n:
             break
-        aid = rng.choice(ids)
-        root = assets.import_model(aid)
+        if not bag:  # every decor piece once before any repeats
+            bag = ids[:]
+            rng.shuffle(bag)
+        aid = bag.pop()
+        root = _try_import(aid)
+        if root is None:
+            continue
         s = _size(root)
         if max(s.x, s.y, s.z) > 1.3:
             _hide(root)

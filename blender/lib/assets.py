@@ -102,16 +102,29 @@ def find(kind: str, *, categories=(), tags=(), exclude_tags=(), name_has=(), lim
 def import_model(asset_id: str, res: str = "1k", location=(0, 0, 0), rot_z: float = 0.0, scale: float = 1.0, role: int = 1):
     """Download (cached) and import a Poly Haven model. Returns the new root object."""
     f = files(asset_id)
-    g = f["gltf"].get(res) or f["gltf"][sorted(f["gltf"])[0]]
-    entry = g["gltf"]
-    base = os.path.join(CACHE, "models", asset_id, res)
-    main = os.path.join(base, os.path.basename(entry["url"]))
-    if not os.path.isfile(main):
-        _get(entry["url"], main)
-        for rel, inc in (entry.get("include") or {}).items():
-            _get(inc["url"], os.path.join(base, rel))
     before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=main)
+    if "gltf" in f:
+        g = f["gltf"].get(res) or f["gltf"][sorted(f["gltf"])[0]]
+        entry = g["gltf"]
+        base = os.path.join(CACHE, "models", asset_id, res)
+        main = os.path.join(base, os.path.basename(entry["url"]))
+        if not os.path.isfile(main):
+            _get(entry["url"], main)
+            for rel, inc in (entry.get("include") or {}).items():
+                _get(inc["url"], os.path.join(base, rel))
+        bpy.ops.import_scene.gltf(filepath=main)
+    elif "fbx" in f:
+        g = f["fbx"].get(res) or f["fbx"][sorted(f["fbx"])[0]]
+        entry = g["fbx"]
+        base = os.path.join(CACHE, "models", asset_id, res + "_fbx")
+        main = os.path.join(base, os.path.basename(entry["url"]))
+        if not os.path.isfile(main):
+            _get(entry["url"], main)
+            for rel, inc in (entry.get("include") or {}).items():
+                _get(inc["url"], os.path.join(base, rel))
+        bpy.ops.import_scene.fbx(filepath=main)
+    else:
+        raise LookupError(f"{asset_id}: no glTF/FBX download")
     new = [o for o in bpy.data.objects if o not in before]
     for o in new:
         o.pass_index = role
