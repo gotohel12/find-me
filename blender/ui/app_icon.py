@@ -41,10 +41,8 @@ def main():
     fm.set_color_management(scene, "AgX - Punchy")
     cam = hider.setup_studio(scene)
     fm.set_world(fm.hsv(0.7, 0.65, 0.35), 1.0)
-    root, joints, parts = hider.build_figure()
-    hider.apply_pose(joints, hider.POSES["peek"])
-    joints["root"].rotation_euler.z = math.radians(-20)
-    hider.ground(root, parts)
+    rig, _, _parts = hider.build_figure()
+    hider.apply_pose(rig, hider.POSES["peek"], -20)
     splash()
     # frame tighter than the sprite camera, centred on the figure
     cam.data.ortho_scale = 0.5

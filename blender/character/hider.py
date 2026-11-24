@@ -90,6 +90,7 @@ def parse(p):
 
 
 def build_figure():
+    """Create the figure's parts (meshes at their own origin). Posing is explicit FK: see Rig.pose."""
     white = fm.mat_solid("hider_white", (0.92, 0.92, 0.91), rough=0.45)
     try:
         b = white.node_tree.nodes["Principled BSDF"]
@@ -97,58 +98,25 @@ def build_figure():
         b.inputs["Subsurface Radius"].default_value = (0.02, 0.02, 0.02)
     except KeyError:
         pass
-
-    def empty(name, loc, parent=None):
-        e = bpy.data.objects.new(name, None)
-        bpy.context.scene.collection.objects.link(e)
-        e.location = loc
-        if parent:
-            e.parent = parent
-        return e
-
-    root = empty("root", (0, 0, 0))
-    hips = empty("hips", (0, 0, HIP[2]), root)  # 'lean' pivot
-    neck = empty("neck", (0, 0, NECK[2] - HIP[2]), hips)
     parts = {}
 
-    def part(name, radii, world_loc, parent, segs=48):
+    def part(name, radii, segs=48, atlas=None):
         o = fm.sphere(name, 1.0, (0, 0, 0), white, scale=radii, segments=segs)
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-        o.parent = parent
-        o.matrix_parent_inverse = parent.matrix_world.inverted()
-        o.location = world_loc
-        pid, u0, v0, u1, v1 = ATLAS[name]
+        pid, u0, v0, u1, v1 = ATLAS[atlas or name]
         o.pass_index = pid
         remap_uv(o, u0, v0, u1, v1)
         parts[name] = o
         return o
 
-    bpy.context.view_layer.update()
-    part("body", BODY, (0, 0, BODY_Z), hips)
-    part("head", (HEAD_R, HEAD_R * 0.96, HEAD_R * 0.94), (0, 0, HEAD_Z), neck)
-
-    joints = {}
-    for side, sx in (("l", 1), ("r", -1)):
-        sh = empty(f"shoulder_{side}", (sx * SHOULDER[0], 0, SHOULDER[2] - HIP[2]), hips)
-        hp = empty(f"hip_{side}", (sx * HIP[0], 0, 0), hips)
-        bpy.context.view_layer.update()
-        part(f"arm_{side}", ARM, sh.matrix_world @ Vector((0, 0, -ARM[2] * 0.75)), sh, 32)
-        part(f"leg_{side}", LEG, hp.matrix_world @ Vector((0, 0, -LEG[2] * 0.95)), hp, 32)
-        joints[f"arm_{side}"] = sh
-        joints[f"leg_{side}"] = hp
-
-    # Antenna: a thin stalk with a little bent tip and a ball — the figure's one signature detail.
-    ant = empty("antenna_base", (0, 0, ANT_BASE[2] - NECK[2]), neck)
-    bpy.context.view_layer.update()
+    part("body", BODY)
+    part("head", (HEAD_R, HEAD_R * 0.96, HEAD_R * 0.94))
+    for side in ("l", "r"):
+        part(f"arm_{side}", ARM, 32)
+        part(f"leg_{side}", LEG, 32)
+    # Antenna: a thin stalk with a little ball — the figure's one signature detail.
     stalk = fm.cylinder("antenna", 0.0042, 0.045, (0, 0, 0), white, vertices=16)
-    stalk.parent = ant
-    stalk.matrix_parent_inverse = ant.matrix_world.inverted()
-    stalk.location = ant.matrix_world @ Vector((0.004, 0, 0.022))
-    stalk.rotation_euler = (0, math.radians(10), 0)
     tip = fm.sphere("antenna_tip", 0.012, (0, 0, 0), white, segments=24)
-    tip.parent = ant
-    tip.matrix_parent_inverse = ant.matrix_world.inverted()
-    tip.location = ant.matrix_world @ Vector((0.010, 0, 0.048))
     aid, u0, v0, u1, v1 = ATLAS["antenna"]
     um = (u0 + u1) / 2
     stalk.pass_index = tip.pass_index = aid
@@ -156,8 +124,45 @@ def build_figure():
     remap_uv(tip, um, v0, u1, v1)  # right half
     parts["antenna"] = stalk
     parts["antenna_tip"] = tip
-    joints.update({"root": root, "lean": hips, "neck": neck})
-    return root, joints, parts
+    rig = Rig(parts)
+    return rig, rig, parts
+
+
+class Rig:
+    """Explicit forward kinematics: every part's world matrix is computed from the pose."""
+
+    def __init__(self, parts):
+        self.parts = parts
+        self.yaw = 0.0
+
+    def pose(self, pose: dict, yaw_deg: float = 0.0):
+        from mathutils import Euler, Matrix  # type: ignore
+
+        def E(key):
+            r = pose.get(key, (0, 0, 0))
+            return Euler(tuple(math.radians(a) for a in r), "XYZ").to_matrix().to_4x4()
+
+        T = Matrix.Translation
+        root = Matrix.Rotation(math.radians(yaw_deg), 4, "Z") @ E("root")
+        hips = root @ T((0, 0, HIP[2])) @ E("lean")
+        neck = hips @ T((0, 0, NECK[2] - HIP[2])) @ E("neck")
+        M = {
+            "body": hips @ T((0, 0, BODY_Z - HIP[2])),
+            "head": neck @ T((0, 0, HEAD_Z - NECK[2])),
+            "antenna": neck @ T((0.004, 0, ANT_BASE[2] - NECK[2] + 0.022)) @ Matrix.Rotation(math.radians(10), 4, "Y"),
+            "antenna_tip": neck @ T((0.010, 0, ANT_BASE[2] - NECK[2] + 0.048)),
+        }
+        for side, sx in (("l", 1), ("r", -1)):
+            sh = hips @ T((sx * SHOULDER[0], 0, SHOULDER[2] - HIP[2])) @ E(f"arm_{side}")
+            M[f"arm_{side}"] = sh @ T((0, 0, -ARM[2] * 0.75))
+            hp = hips @ T((sx * HIP[0], 0, 0)) @ E(f"leg_{side}")
+            M[f"leg_{side}"] = hp @ T((0, 0, -LEG[2] * 0.95))
+        # rest on the ground
+        zmin = min((M[n] @ v.co).z for n, o in self.parts.items() for v in o.data.vertices)
+        lift = T((0, 0, -zmin))
+        for n, o in self.parts.items():
+            o.matrix_world = lift @ M[n]
+        bpy.context.view_layer.update()
 
 
 def remap_uv(obj, u0, v0, u1, v1):
@@ -180,22 +185,8 @@ def remap_uv(obj, u0, v0, u1, v1):
     uv.foreach_set("uv", arr.reshape(-1))
 
 
-def apply_pose(joints, pose: dict):
-    for name, e in joints.items():
-        e.rotation_euler = (0, 0, 0)
-    joints["root"].location = (0, 0, 0)
-    for name, rot in pose.items():
-        e = joints[name]
-        e.rotation_euler = tuple(math.radians(a) for a in rot)
-    bpy.context.view_layer.update()
-
-
-def ground(root, parts):
-    """Shift the figure so its lowest point touches z = 0."""
-    bpy.context.view_layer.update()
-    zmin = min((o.matrix_world @ v.co).z for o in parts.values() for v in o.data.vertices)
-    root.location.z -= zmin
-    bpy.context.view_layer.update()
+def apply_pose(rig, pose: dict, yaw_deg: float = 0.0):
+    rig.pose(pose, yaw_deg)
 
 
 def setup_studio(scene):
@@ -221,7 +212,7 @@ def main():
     scene = fm.reset_scene()
     fm.set_color_management(scene, "None")
     cam = setup_studio(scene)
-    root, joints, parts = build_figure()
+    rig, _, parts = build_figure()
 
     poses = list(POSES) if args.poses == "all" else args.poses.split(",")
     angles = list(ANGLES) if args.angles == "all" else args.angles.split(",")
@@ -234,9 +225,7 @@ def main():
     for pose_name in poses:
         pose = POSES[pose_name]
         for angle_name in angles:
-            apply_pose(joints, pose)
-            joints["root"].rotation_euler.z = math.radians(ANGLES[angle_name]) + joints["root"].rotation_euler.z
-            ground(root, parts)
+            apply_pose(rig, pose, ANGLES[angle_name])
             out = os.path.join(args.out, "character", pose_name, angle_name)
             os.makedirs(out, exist_ok=True)
 
