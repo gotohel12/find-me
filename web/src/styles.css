@@ -82,7 +82,7 @@ button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
 }
 
 /* ---------- editor + seek ---------- */
-.editor, .seek { position: fixed; inset: 0; display: flex; flex-direction: column; background: #120d2c; }
+.editor, .seek-screen { position: fixed; inset: 0; display: flex; flex-direction: column; background: #120d2c; }
 .ed-top { display: flex; align-items: center; gap: 10px; padding: max(8px, env(safe-area-inset-top)) 10px 8px; }
 .ed-top .timer { flex: 1; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
 .ed-top .timer.warn { color: var(--pink); animation: pulse 1s infinite; }
@@ -136,7 +136,7 @@ button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
 .misses { display: flex; gap: 6px; }
 .misses .dot { width: 14px; height: 14px; border-radius: 50%; background: #ffffff33; }
 .misses .dot.x { background: var(--pink); }
-.seek.shake .ed-canvas { animation: shake .3s; }
+.seek-screen.shake .ed-canvas { animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 .reveal { position: absolute; inset-inline: 12px; bottom: 16px; background: #1b1440ee; border-radius: 22px; padding: 16px; text-align: center; animation: pop .3s ease-out forwards; opacity: 0; transform: scale(.8); }
 .reveal h2 { margin: 0 0 6px; font-size: 30px; }

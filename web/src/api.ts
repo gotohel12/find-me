@@ -38,6 +38,16 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
+  /** Whether the server has a database (accounts and online hides need one). */
+  async hasAccounts(): Promise<boolean> {
+    try {
+      const r = await fetch(`${BASE}/health`);
+      return r.ok && (await r.json()).postgres === true;
+    } catch {
+      return false;
+    }
+  },
+
   today: (day?: string) => call<Today>(`/v1/today${day ? `?day=${day}` : ''}`),
 
   /** Make sure this device has a guest player; returns it. */

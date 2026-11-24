@@ -22,7 +22,7 @@ export function Home({ onHide }: { onHide: (sceneId: string) => void }) {
       })
       .catch(() => setError(true));
     // A guest profile is optional for the home screen (works before the database is connected).
-    api.ensurePlayer(lang).then(setPlayer, () => setPlayer(null));
+    api.hasAccounts().then((ok) => (ok ? api.ensurePlayer(lang).then(setPlayer, () => setPlayer(null)) : setPlayer(null)));
   };
   useEffect(load, []);
 

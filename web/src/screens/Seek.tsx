@@ -160,7 +160,7 @@ export function Seek({ hide, onAgain, onHome }: { hide: HideResult; onAgain: () 
     phase === 'found' ? seekPoints({ found: true, elapsedMs: elapsed, wrongTaps: misses, hintUsed: hint }) : 0;
 
   return (
-    <div class={`seek ${shake ? 'shake' : ''}`}>
+    <div class={`seek-screen ${shake ? 'shake' : ''}`}>
       <header class="ed-top">
         <button class="icon-btn" onClick={onHome} aria-label={t('back')}>←</button>
         <div class="timebar" aria-label={t('seek.left', { s: leftS })}>
