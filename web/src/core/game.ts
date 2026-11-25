@@ -279,6 +279,12 @@ export class Game {
     return r.max;
   }
 
+  /** Current deepest penetration of the whole posed body, in cm (test hook). */
+  measureClip(): number {
+    this.hider.root.updateMatrixWorld(true);
+    return Math.round(penetration(this.phys, this.hider.posedPoints(1), this.body.collider).max * 1000) / 10;
+  }
+
   /**
    * Automated clipping test: every pose at every test spot, all vertices checked.
    * Returns the worst penetration per pose (cm) and whether the game refused the pose.

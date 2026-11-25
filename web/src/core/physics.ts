@@ -12,6 +12,8 @@ export function initPhysics(): Promise<void> {
 
 export class Physics {
   readonly world: RAPIER.World;
+  /** triangles per static collider: a ray hit with featureId >= count hit a back face */
+  readonly triCount = new Map<number, number>();
   constructor() {
     this.world = new RAPIER.World({ x: 0, y: -14, z: 0 });
   }
@@ -40,7 +42,8 @@ export class Physics {
         for (let i = 0; i < pos.count; i++) idx[i] = i;
       }
       const desc = RAPIER.ColliderDesc.trimesh(verts, idx);
-      this.world.createCollider(desc);
+      const col = this.world.createCollider(desc);
+      this.triCount.set(col.handle, idx.length / 3);
       n++;
     });
     return n;
@@ -132,19 +135,27 @@ const AXES = [
 ];
 
 /**
- * Is a point inside solid map geometry? Six rays: when most first-hits are back faces
- * (normal facing along the ray), the point is enclosed. Works on open photoscans too.
+ * Is a point inside solid map geometry? Six rays: Rapier reports a back-face hit on a
+ * triangle mesh as featureId = triangle + triangleCount. Inside = the nearest hit is a back
+ * face and at least one more ray agrees (robust on open photoscans).
  */
 export function pointInside(phys: Physics, p: THREE.Vector3, exclude?: RAPIER.Collider): boolean {
-  let hits = 0;
   let back = 0;
+  let nearest = Infinity;
+  let nearestBack = false;
   for (const d of AXES) {
     const h = phys.world.castRayAndGetNormal(new RAPIER.Ray({ x: p.x, y: p.y, z: p.z }, d), 3, false, undefined, undefined, exclude);
     if (!h) continue;
-    hits++;
-    if (h.normal.x * d.x + h.normal.y * d.y + h.normal.z * d.z > 0) back++;
+    const n = phys.triCount.get(h.collider.handle);
+    const fid = (h as unknown as { featureId?: number }).featureId;
+    const isBack = n !== undefined && fid !== undefined && fid >= n;
+    if (isBack) back++;
+    if (h.timeOfImpact < nearest) {
+      nearest = h.timeOfImpact;
+      nearestBack = isBack;
+    }
   }
-  return hits >= 4 && back * 2 > hits;
+  return nearestBack && back >= 2;
 }
 
 /**
