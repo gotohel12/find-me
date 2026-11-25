@@ -31,6 +31,7 @@ export function GameScreen({ mapId, onExit }: { mapId: string; onExit: () => voi
   useEffect(() => {
     const g = new Game(canvas.current!);
     game.current = g;
+    (window as unknown as { __findme?: Game }).__findme = g; // test/tutorial hook
     const off = g.on(setV);
     void g.start(mapId);
     let raf = 0;

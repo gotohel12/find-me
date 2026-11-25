@@ -149,8 +149,31 @@ export class Game {
   setMode(mode: 'play' | 'paint') {
     this.input.lookEnabled = mode === 'play';
     if (mode === 'paint') this.input.releaseLock();
+    this.frameForPanel(mode === 'paint');
     this.emit({ mode });
     sfx.tap();
+  }
+
+  /** Shift the view so the body sits in the half of the screen the paint panel doesn't cover. */
+  private frameForPanel(on: boolean) {
+    const cam = this.engine.camera;
+    if (!on) {
+      cam.clearViewOffset();
+      return;
+    }
+    const w = this.engine.canvas.clientWidth;
+    const h = this.engine.canvas.clientHeight;
+    const rtl = document.documentElement.dir === 'rtl';
+    const panel = Math.min(340, w * 0.46) + 16;
+    cam.setViewOffset(w, h, (rtl ? 1 : -1) * panel * 0.5, 0, w, h);
+  }
+
+  /** CSS pixel position of a point on the body (fraction of height), e.g. for tests and tutorials. */
+  screenPoint(heightFrac = 0.5): { x: number; y: number } {
+    const p = this.hider.root.position.clone().add(new THREE.Vector3(0, this.hider.height * heightFrac, 0));
+    p.project(this.engine.camera);
+    const r = this.engine.canvas.getBoundingClientRect();
+    return { x: r.left + ((p.x + 1) / 2) * r.width, y: r.top + ((1 - p.y) / 2) * r.height };
   }
 
   setTool(tool: Tool) {

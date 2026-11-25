@@ -257,7 +257,7 @@ POSES = {
                     "shin.R": (150, 0, 0), **arms(lx=-60, rx=-60)},
     "plank_stiff": {**arms(lz=8, rz=-8)},
     "lean": {"root": (0, 18, 0), "spine": (0, 10, 0), **arms(lz=40, rz=-10)},
-    "stretched": {**arms(lz=170, rz=-170), **legs(lz=12, rz=-12)},
+    "stretched": {**arms(lz=175, rz=-175), **legs(lz=4, rz=-4), "spine": (-8, 0, 0)},
     "upside_down": {"root": (0, 180, 0), **arms(lz=120, rz=-120)},
     "be_a_lamp": {**arms(lz=150, rz=-150), "forearm.L": (0, 0, 60), "forearm.R": (0, 0, -60), "neck": (15, 0, 0)},
     "be_a_vase": {**arms(lz=40, rz=-40, lx=-15, rx=-15), "forearm.L": (0, 0, -70), "forearm.R": (0, 0, 70), **legs(lz=-4, rz=4)},
