@@ -67,3 +67,63 @@ test('today returns the published scene and a countdown', async () => {
   const future = await app.inject({ method: 'GET', url: '/v1/today?day=2999-01-01' });
   assert.equal(future.statusCode, 400, 'no peeking at future scenes');
 });
+
+// ---------------------------------------------------------------- online play (real packed assets + sharp)
+import { autoHide, loadScene } from '../src/game.ts';
+import { PNG_PAINT } from './paint-fixture.ts';
+
+async function guest() {
+  const r = await app.inject({ method: 'POST', url: '/v1/auth/guest', payload: { locale: 'en' } });
+  return { authorization: `Bearer ${r.json().token}` };
+}
+
+test('seek: seed hides appear, image is composited, taps are judged by the server', async () => {
+  const h = await guest();
+  const start = await app.inject({ method: 'POST', url: '/v1/seek/start', headers: h, payload: {} });
+  assert.equal(start.statusCode, 200, start.body);
+  const { session, hides } = start.json();
+  assert.ok(hides.length >= 1 && hides.length <= 5);
+  const img = await app.inject({ method: 'GET', url: hides[0].image, headers: h });
+  assert.equal(img.statusCode, 200);
+  assert.equal(img.headers['content-type'], 'image/webp');
+  assert.ok(img.rawPayload.length > 10_000);
+  // a tap far outside the picture is a miss and reveals nothing
+  const miss = await app.inject({ method: 'POST', url: `/v1/seek/${session}/${hides[0].id}/tap`, headers: h, payload: { x: -500, y: -500 } });
+  assert.equal(miss.json().done, false);
+  assert.equal(miss.json().reveal, undefined, 'no position leaks before the end');
+  const give = await app.inject({ method: 'POST', url: `/v1/seek/${session}/${hides[0].id}/giveup`, headers: h, payload: {} });
+  assert.equal(give.json().done, true);
+  assert.ok(give.json().reveal.x > 0);
+  // tapping the revealed spot on the next hide's twin is not possible: the attempt is closed
+  const again = await app.inject({ method: 'POST', url: `/v1/seek/${session}/${hides[0].id}/tap`, headers: h, payload: { x: 1, y: 1 } });
+  assert.equal(again.statusCode, 409);
+});
+
+test('hide: a fair hide is accepted, an unfair one is rejected', async () => {
+  const h = await guest();
+  const today = (await app.inject({ method: 'GET', url: '/v1/today' })).json();
+  const scene = await loadScene(today.scene.id, 'landscape');
+  const made = await autoHide(scene, 4242);
+  assert.ok(made, 'auto-hider found a fair spot');
+  const body = {
+    sceneId: today.scene.id,
+    orientation: 'landscape',
+    pose: made!.sprite.pose,
+    angle: made!.sprite.angle,
+    placement: made!.placement,
+    paint: PNG_PAINT,
+  };
+  const ok = await app.inject({ method: 'POST', url: '/v1/hides', headers: h, payload: body });
+  assert.equal(ok.statusCode, 200, ok.body);
+  assert.match(ok.json().code, /^[A-Z2-9]{6}$/);
+  const bad = await app.inject({
+    method: 'POST',
+    url: '/v1/hides',
+    headers: h,
+    payload: { ...body, placement: { ...made!.placement, scale: made!.placement.scale * 5 } },
+  });
+  assert.equal(bad.statusCode, 422);
+  // the leaderboard answers
+  const lb = await app.inject({ method: 'GET', url: '/v1/leaderboard?board=seekers' });
+  assert.equal(lb.statusCode, 200);
+});

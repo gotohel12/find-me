@@ -69,5 +69,17 @@
   "assets.missing": "Today's scene art is still being rendered. Check back soon!",
   "back": "Back",
   "color": "Colour",
-  "recent": "Recent"
+  "recent": "Recent",
+  "seek.none": "No hides to find yet today — be the first to hide!",
+  "results.title": "Today's results",
+  "results.found": "You found {n} of {of}",
+  "results.copy": "Copy result",
+  "seek.faster": "faster than {p}% of players",
+  "seek.next": "Next",
+  "pass.live": "Your hide is live! Other players can now try to find you.",
+  "pass.code": "Challenge code: {code}",
+  "pass.seek": "Find other players",
+  "pass.local": "Pass the phone to a friend",
+  "home.needs_online": "Online play needs the server's database — coming very soon. Try hiding and pass the phone to a friend!",
+  "hide.sending": "Saving your hide…"
 }

@@ -37,7 +37,40 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (await res.json()) as T;
 }
 
+export interface TapResult {
+  done: boolean;
+  found: boolean;
+  misses?: number;
+  penaltyMs?: number;
+  elapsedMs?: number;
+  points?: number;
+  fasterPct?: number;
+  reveal?: { x: number; y: number; r: number };
+  hide?: { attempts: number; finds: number };
+}
+
 export const api = {
+  submitHide: (b: { sceneId: string; orientation: string; pose: string; angle: string; placement: unknown; paint: string }) =>
+    call<{ id: string; code: string }>('/v1/hides', { method: 'POST', body: JSON.stringify(b) }),
+  seekStart: (challenge?: string) =>
+    call<{ session: string; hides: { id: string; ord: number; image: string }[] }>('/v1/seek/start', {
+      method: 'POST',
+      body: JSON.stringify(challenge ? { challenge } : {}),
+    }),
+  async seekImage(path: string): Promise<Blob> {
+    const t = token();
+    const r = await fetch(`${BASE}${path}`, { headers: t ? { Authorization: `Bearer ${t}` } : {} });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.blob();
+  },
+  tap: (session: string, hide: string, x: number, y: number) =>
+    call<TapResult>(`/v1/seek/${session}/${hide}/tap`, { method: 'POST', body: JSON.stringify({ x, y }) }),
+  hint: (session: string, hide: string) =>
+    call<{ quadrant: { x: number; y: number }; w: number; h: number }>(`/v1/seek/${session}/${hide}/hint`, { method: 'POST', body: '{}' }),
+  giveUp: (session: string, hide: string) => call<TapResult>(`/v1/seek/${session}/${hide}/giveup`, { method: 'POST', body: '{}' }),
+  leaderboard: (board: 'seekers' | 'hiders') =>
+    call<{ rows: { name: string; score: number; attempts?: number; finds?: number }[] }>(`/v1/leaderboard?board=${board}`),
+
   /** Whether the server has a database (accounts and online hides need one). */
   async hasAccounts(): Promise<boolean> {
     try {
@@ -48,6 +81,7 @@ export const api = {
     }
   },
 
+  me: () => call<{ player: Player }>('/v1/me').then((r) => r.player),
   today: (day?: string) => call<Today>(`/v1/today${day ? `?day=${day}` : ''}`),
 
   /** Make sure this device has a guest player; returns it. */

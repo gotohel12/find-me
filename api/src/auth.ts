@@ -31,3 +31,17 @@ export function guestName(locale: string, rand: () => number = Math.random): str
 }
 
 export { makeCode };
+
+/** Resolve the player for a request's bearer token, or null. */
+export async function playerOf(
+  db: { query: (q: string, v: unknown[]) => Promise<{ rows: { player_id: string }[] }> } | null,
+  req: FastifyRequest,
+): Promise<string | null> {
+  const t = bearer(req);
+  if (!t || !db) return null;
+  const r = await db.query(
+    'UPDATE device_tokens SET last_seen_at = now() WHERE token_hash = $1 RETURNING player_id',
+    [hashToken(t)],
+  );
+  return r.rows[0]?.player_id ?? null;
+}

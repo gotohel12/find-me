@@ -127,3 +127,11 @@ export function isHit(p: Placement, s: Sprite, tx: number, ty: number, o: HitOpt
 export function tapTolerance(characterHeightPx: number): number {
   return Math.min(Math.max(characterHeightPx * 0.12, 6), 28);
 }
+
+/** The hider is drawn bigger than its real ~37 cm so it is fun to paint and fair to find. */
+export const CHARACTER_SIZE = 1.45;
+
+/** Sprite scale that gives the character its in-game size at scene depth d (metres). */
+export function depthScaleFor(focalPx: number, depthM: number, spritePpm: number): number {
+  return (CHARACTER_SIZE * focalPx) / Math.max(depthM, 0.05) / spritePpm;
+}

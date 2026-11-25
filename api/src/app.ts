@@ -11,6 +11,7 @@ import { type Config } from './config.ts';
 import { healthRoutes } from './routes/health.ts';
 import { authRoutes } from './routes/auth.ts';
 import { todayRoutes } from './routes/today.ts';
+import { playRoutes } from './routes/play.ts';
 
 export interface Deps {
   config: Config;
@@ -31,7 +32,7 @@ export async function buildApp(config: Config, deps?: Partial<Deps>): Promise<Fa
   const app = Fastify({
     logger: config.env === 'test' ? false : { level: config.env === 'production' ? 'info' : 'debug' },
     trustProxy: true,
-    bodyLimit: 512 * 1024,
+    bodyLimit: 1024 * 1024,
   });
   const db =
     deps?.db !== undefined ? deps.db : config.databaseUrl
@@ -46,6 +47,7 @@ export async function buildApp(config: Config, deps?: Partial<Deps>): Promise<Fa
   await app.register(healthRoutes);
   await app.register(authRoutes, { prefix: '/v1' });
   await app.register(todayRoutes, { prefix: '/v1' });
+  await app.register(playRoutes, { prefix: '/v1' });
 
   // Serve the built web app from the same service (one free Render instance).
   const dist = config.webDist ? resolve(REPO, config.webDist) : null;
