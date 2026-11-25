@@ -48,8 +48,10 @@ export function SeekOnline({ challenge, onHome, onHide }: { challenge?: string; 
       .seekImage(session.hides[idx].image)
       .then((b) => createImageBitmap(b))
       .then((bm) => {
+        const t0 = performance.now();
+        setStartAt(t0);
+        setNow(t0);
         setImg(bm);
-        setStartAt(performance.now());
       })
       .catch(() => setError(t('home.error')));
   }, [session, idx]);

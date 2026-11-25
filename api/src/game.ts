@@ -287,7 +287,7 @@ export async function autoHide(s: Scene, seed: number): Promise<{ sprite: Sprite
     if (!f.ok) continue;
     const paint = new PaintTexture();
     // average scene colour behind each part
-    const sums = new Map<number, [number, number, number, number]>();
+    const samples = new Map<number, number[][]>();
     const b = placedBounds(p, spriteRef(sp));
     for (let yy = Math.max(0, Math.floor(b.y0)); yy <= Math.min(s.h - 1, Math.ceil(b.y1)); yy += 2) {
       for (let xx = Math.max(0, Math.floor(b.x0)); xx <= Math.min(s.w - 1, Math.ceil(b.x1)); xx += 2) {
@@ -299,19 +299,19 @@ export async function autoHide(s: Scene, seed: number): Promise<{ sprite: Sprite
         if (sp.uvp[si + 3] < 128) continue;
         const part = Math.round(sp.uvp[si + 2] / 40);
         const ci = (yy * s.w + xx) * 3;
-        const acc = sums.get(part) ?? [0, 0, 0, 0];
-        acc[0] += s.rgb[ci];
-        acc[1] += s.rgb[ci + 1];
-        acc[2] += s.rgb[ci + 2];
-        acc[3]++;
-        sums.set(part, acc);
+        const list = samples.get(part) ?? [];
+        list.push([s.rgb[ci], s.rgb[ci + 1], s.rgb[ci + 2]]);
+        samples.set(part, list);
       }
     }
-    for (const [part, [cr, cg, cb, n]] of sums) {
-      if (part < 1 || part > 5 || !n) continue;
-      // counter the shading the renderer will add (lit pixels come out darker than albedo)
-      const lift = 1.25;
-      paint.fillPart(part as PartId, [Math.min(255, (cr / n) * lift), Math.min(255, (cg / n) * lift), Math.min(255, (cb / n) * lift)]);
+    const median = (xs: number[]) => xs.sort((a, b) => a - b)[xs.length >> 1];
+    // difficulty varies per seed: lift 1.05 (very sneaky) … 1.35 (easier)
+    const lift = 1.05 + r() * 0.3;
+    for (const [part, list] of samples) {
+      if (part < 1 || part > 5 || !list.length) continue;
+      // median colour behind the part (robust to a few odd pixels), lifted to counter the renderer's shading
+      const c = [0, 1, 2].map((k) => Math.min(255, median(list.map((v) => v[k])) * lift)) as [number, number, number];
+      paint.fillPart(part as PartId, c);
     }
     // mottling so it doesn't look flat
     for (let k = 0; k < 160; k++) {
