@@ -574,6 +574,8 @@ export class Game {
       this.orbit.minDist = 0.8;
       this.orbit.update(focus, dt, 0.32);
     }
+    // camera squeezed against a wall: never show the inside of the body, hide it instead
+    this.hider.model.visible = painting || this.engine.camera.position.distanceTo(focus) > 0.45;
     this.engine.render();
 
     this.fpsAcc.t += dt;

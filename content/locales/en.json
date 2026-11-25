@@ -94,7 +94,7 @@
   "quality.ultra": "Ultra",
   "credits.assets": "3D models, textures and lighting",
   "game.loading": "Loading the map…",
-  "game.tip": "Tip: press Tab (or 🎨) to paint your body, Q (or 🧍) to pose, F (or 🔒) to lock in.",
+  "game.tip": "Tip: paint your body to match what's behind you, pick a pose, then lock in and check your camo score.",
   "game.error": "The game could not start on this device.",
   "hud.paint": "Painting",
   "hud.locked": "Locked in",
