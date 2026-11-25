@@ -55,8 +55,7 @@ J = {
     "foot.R": ((-0.050, -0.012, 0.026), 0.040, 0.046),
 }
 EDGES = [
-    ("pelvis", "belly"), ("belly", "chest"), ("chest", "neck"), ("neck", "head"), ("head", "head_top"),
-    ("head_top", "ant_base"), ("ant_base", "ant_tip"),
+    ("pelvis", "belly"), ("belly", "chest"), ("chest", "neck"),
     ("chest", "shoulder.L"), ("shoulder.L", "elbow.L"), ("elbow.L", "hand.L"),
     ("chest", "shoulder.R"), ("shoulder.R", "elbow.R"), ("elbow.R", "hand.R"),
     ("pelvis", "hip.L"), ("hip.L", "knee.L"), ("knee.L", "foot.L"),
@@ -85,8 +84,11 @@ PART_OF_BONE = {
 }
 
 
+SKIN_JOINTS = [n for n in J if n not in ("head", "head_top", "ant_base", "ant_tip")]
+
+
 def build_mesh():
-    names = list(J)
+    names = SKIN_JOINTS
     me = bpy.data.meshes.new("hider")
     me.from_pydata([J[n][0] for n in names], [(names.index(a), names.index(b)) for a, b in EDGES], [])
     obj = bpy.data.objects.new("hider", me)
@@ -111,6 +113,24 @@ def build_mesh():
     sm.factor = 0.5
     sm.iterations = 4
     bpy.ops.object.modifier_apply(modifier="smooth")
+    # round head + antenna as their own smooth shells, joined into the same object
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=48, ring_count=32, radius=0.108, location=(0, 0, 0.338))
+    head = bpy.context.active_object
+    head.scale = (1.0, 0.95, 0.93)
+    bpy.ops.mesh.primitive_cylinder_add(vertices=16, radius=0.0055, depth=0.05, location=(0.004, 0, 0.455),
+                                        rotation=(0, math.radians(12), 0))
+    stalk = bpy.context.active_object
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=16, radius=0.017, location=(0.011, 0, 0.484))
+    tip = bpy.context.active_object
+    for o in (head, stalk, tip):
+        bpy.context.view_layer.objects.active = o
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+        bpy.ops.object.shade_smooth()
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in (obj, head, stalk, tip):
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.join()
     return obj
 
 
@@ -185,6 +205,9 @@ def key_pose(rig, frame, pose: dict, loc=(0, 0, 0)):
     for pb in rig.pose.bones:
         pb.rotation_mode = "XYZ"
         r = pose.get(pb.name, (0, 0, 0))
+        if pb.name.endswith((".L", ".R")):
+            # pose tables use "+Z = swing away from the body"; Blender's limb bones swing inward for +Z
+            r = (r[0], r[1], -r[2])
         pb.rotation_euler = Euler((D(r[0]), D(r[1]), D(r[2])), "XYZ")
         pb.keyframe_insert("rotation_euler", frame=frame)
     root = rig.pose.bones["root"]

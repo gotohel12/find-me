@@ -148,7 +148,7 @@ def main():
     sun = room.light(THEME, rng)
     out = os.path.join(args.out, "3d", "maps", MAP_ID)
     # review render from the doorway
-    cam = fm.add_camera("review", (0, -0.2, 1.6), (0, D * 0.75, 0.6), focal_mm=20)
+    cam = fm.add_camera("review", (0.3, 0.45, 1.55), (-0.2, D * 0.8, 0.5), focal_mm=18)
     scene.camera = cam
     fm.set_color_management(scene)
     w, h = (960, 540) if args.preview else (1920, 1080)
