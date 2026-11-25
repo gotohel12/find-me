@@ -1,0 +1,721 @@
+{
+  "tatami_mat": {
+    "name": "Tatami Mat",
+    "type": "textures",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/tatami_mat",
+    "authors": [
+      "Charlotte Baglioni"
+    ]
+  },
+  "japanese_cedar_planks": {
+    "name": "Japanese Cedar Planks",
+    "type": "textures",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/japanese_cedar_planks",
+    "authors": [
+      "Charlotte Baglioni",
+      "Rico Cilliers"
+    ]
+  },
+  "modern_wooden_cabinet": {
+    "name": "Modern Wooden Cabinet",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/modern_wooden_cabinet",
+    "authors": [
+      "Patrik Pangerl"
+    ]
+  },
+  "wooden_display_shelves_01": {
+    "name": "Wooden Display Shelves 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wooden_display_shelves_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "wooden_table_02": {
+    "name": "Wooden Table 02",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wooden_table_02",
+    "authors": [
+      "Serhii Khromov"
+    ]
+  },
+  "side_table_tall_01": {
+    "name": "Side Table Tall 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/side_table_tall_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "vintage_wooden_drawer_01": {
+    "name": "Vintage Wooden Drawer 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/vintage_wooden_drawer_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "chinese_cabinet": {
+    "name": "Chinese Cabinet",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/chinese_cabinet",
+    "authors": [
+      "Kirill Sannikov"
+    ]
+  },
+  "chinese_stool": {
+    "name": "Chinese Stool",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/chinese_stool",
+    "authors": [
+      "Kirill Sannikov"
+    ]
+  },
+  "coffee_table_round_01": {
+    "name": "Coffee Table Round 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/coffee_table_round_01",
+    "authors": [
+      "Ulan Cabanilla"
+    ]
+  },
+  "painted_wooden_shelves": {
+    "name": "Painted Wooden Shelves",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/painted_wooden_shelves",
+    "authors": [
+      "Kirill Sannikov"
+    ]
+  },
+  "chinese_sofa": {
+    "name": "Chinese Sofa",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/chinese_sofa",
+    "authors": [
+      "Kirill Sannikov"
+    ]
+  },
+  "chinese_tea_table": {
+    "name": "Chinese Tea Table",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/chinese_tea_table",
+    "authors": [
+      "Kirill Sannikov"
+    ]
+  },
+  "ornate_mirror_01": {
+    "name": "Ornate Mirror 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/ornate_mirror_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "hanging_picture_frame_03": {
+    "name": "Hanging Picture Frame 03",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/hanging_picture_frame_03",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "fancy_picture_frame_01": {
+    "name": "Fancy Picture Frame 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/fancy_picture_frame_01",
+    "authors": [
+      "Rob Tuytel",
+      "Rico Cilliers"
+    ]
+  },
+  "hanging_picture_frame_02": {
+    "name": "Hanging Picture Frame 02",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/hanging_picture_frame_02",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "hanging_picture_frame_01": {
+    "name": "Hanging Picture Frame 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/hanging_picture_frame_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "wall_clock": {
+    "name": "Wall Clock",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wall_clock",
+    "authors": [
+      "PierreB3D"
+    ]
+  },
+  "tea_set_01": {
+    "name": "Tea Set 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/tea_set_01",
+    "authors": [
+      "James Ray Cock",
+      "Rico Cilliers",
+      "Jurita Burger"
+    ]
+  },
+  "Lantern_01": {
+    "name": "Lantern 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/Lantern_01",
+    "authors": [
+      "Rajil Jose Macatangay"
+    ]
+  },
+  "rubber_duck_toy": {
+    "name": "Rubber Duck Toy",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/rubber_duck_toy",
+    "authors": [
+      "Plat251"
+    ]
+  },
+  "ceramic_vase_01": {
+    "name": "Ceramic Vase 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/ceramic_vase_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "ceramic_vase_02": {
+    "name": "Ceramic Vase 02",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/ceramic_vase_02",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "ceramic_vase_03": {
+    "name": "Ceramic Vase 03",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/ceramic_vase_03",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "ceramic_vase_04": {
+    "name": "Ceramic Vase 04",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/ceramic_vase_04",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "antique_ceramic_vase_01": {
+    "name": "Antique Ceramic Vase 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/antique_ceramic_vase_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "brass_vase_01": {
+    "name": "Brass Vase 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/brass_vase_01",
+    "authors": [
+      "Rico Cilliers"
+    ]
+  },
+  "wooden_bowl_01": {
+    "name": "Wooden Bowl 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wooden_bowl_01",
+    "authors": [
+      "Oliver Harries"
+    ]
+  },
+  "wooden_bowl_02": {
+    "name": "Wooden Bowl 02",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wooden_bowl_02",
+    "authors": [
+      "Kuutti Siitonen"
+    ]
+  },
+  "jug_01": {
+    "name": "Jug 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/jug_01",
+    "authors": [
+      "Kuutti Siitonen"
+    ]
+  },
+  "book_encyclopedia_set_01": {
+    "name": "Book Encyclopedia Set 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/book_encyclopedia_set_01",
+    "authors": [
+      "John Malcolm"
+    ]
+  },
+  "decorative_book_set_01": {
+    "name": "Decorative Book Set 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/decorative_book_set_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "binder_notebook": {
+    "name": "Binder Notebook",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/binder_notebook",
+    "authors": [
+      "DaDrood"
+    ]
+  },
+  "alarm_clock_01": {
+    "name": "Alarm Clock 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/alarm_clock_01",
+    "authors": [
+      "Yann Kervran",
+      "James Ray Cock"
+    ]
+  },
+  "mantel_clock_01": {
+    "name": "Mantel Clock 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/mantel_clock_01",
+    "authors": [
+      "Yann Kervran",
+      "Rico Cilliers"
+    ]
+  },
+  "standing_picture_frame_01": {
+    "name": "Standing Picture Frame 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/standing_picture_frame_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "standing_picture_frame_02": {
+    "name": "Standing Picture Frame 02",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/standing_picture_frame_02",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "carved_wooden_elephant": {
+    "name": "Carved Wooden Elephant",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/carved_wooden_elephant",
+    "authors": [
+      "Greg Zaal"
+    ]
+  },
+  "concrete_cat_statue": {
+    "name": "Concrete Cat Statue",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/concrete_cat_statue",
+    "authors": [
+      "Rico Cilliers",
+      "Riley Queen"
+    ]
+  },
+  "gamepad": {
+    "name": "Gamepad",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/gamepad",
+    "authors": [
+      "Josh Dean"
+    ]
+  },
+  "cassette_player": {
+    "name": "Cassette Player",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/cassette_player",
+    "authors": [
+      "Oday Abuzaeed"
+    ]
+  },
+  "food_apple_01": {
+    "name": "Food Apple 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/food_apple_01",
+    "authors": [
+      "Oliver Harries"
+    ]
+  },
+  "food_pomegranate_01": {
+    "name": "Food Pomegranate 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/food_pomegranate_01",
+    "authors": [
+      "Oliver Harries"
+    ]
+  },
+  "bananas": {
+    "name": "Bananas",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/bananas",
+    "authors": [
+      "Alexander Shulha"
+    ]
+  },
+  "lemon": {
+    "name": "Lemon",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/lemon",
+    "authors": [
+      "Kuutti Siitonen"
+    ]
+  },
+  "wicker_basket_01": {
+    "name": "Wicker Basket 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wicker_basket_01",
+    "authors": [
+      "Kuutti Siitonen"
+    ]
+  },
+  "planter_box_01": {
+    "name": "Planter Box 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/planter_box_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "anthurium_botany_01": {
+    "name": "Anthurium Botany 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/anthurium_botany_01",
+    "authors": [
+      "Rob Tuytel",
+      "Rico Cilliers"
+    ]
+  },
+  "calathea_orbifolia_01": {
+    "name": "Calathea Orbifolia 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/calathea_orbifolia_01",
+    "authors": [
+      "Rob Tuytel",
+      "Rico Cilliers"
+    ]
+  },
+  "throw_pillows_01": {
+    "name": "Throw Pillows 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/throw_pillows_01",
+    "authors": [
+      "Serhii Khromov"
+    ]
+  },
+  "brass_candleholders": {
+    "name": "Brass Candleholders",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/brass_candleholders",
+    "authors": [
+      "Tina"
+    ]
+  },
+  "wooden_candlestick": {
+    "name": "Wooden Candlestick",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wooden_candlestick",
+    "authors": [
+      "Josh Dean"
+    ]
+  },
+  "vintage_pocket_watch": {
+    "name": "Vintage Pocket Watch",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/vintage_pocket_watch",
+    "authors": [
+      "Tal Swicegood"
+    ]
+  },
+  "round_spectacles": {
+    "name": "Round Spectacles",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/round_spectacles",
+    "authors": [
+      "Sean Buckley"
+    ]
+  },
+  "magnifying_glass_01": {
+    "name": "Magnifying Glass 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/magnifying_glass_01",
+    "authors": [
+      "Nazar Borodavka"
+    ]
+  },
+  "chess_set": {
+    "name": "Chess Set",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/chess_set",
+    "authors": [
+      "Riley Queen"
+    ]
+  },
+  "plastic_thermos": {
+    "name": "Plastic Thermos",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/plastic_thermos",
+    "authors": [
+      "PierreB3D"
+    ]
+  },
+  "russian_food_cans_01": {
+    "name": "Russian Food Cans 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/russian_food_cans_01",
+    "authors": [
+      "Kosan Aziz"
+    ]
+  },
+  "lambis_shell": {
+    "name": "Lambis Shell",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/lambis_shell",
+    "authors": [
+      "Kuutti Siitonen"
+    ]
+  },
+  "sungka_board": {
+    "name": "Sungka Board",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/sungka_board",
+    "authors": [
+      "Ulan Cabanilla"
+    ]
+  },
+  "wicker_basket_02": {
+    "name": "Wicker Basket 02",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wicker_basket_02",
+    "authors": [
+      "Kuutti Siitonen"
+    ]
+  },
+  "planter_pot_clay": {
+    "name": "Planter Pot Clay",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/planter_pot_clay",
+    "authors": [
+      "Amal Kumar"
+    ]
+  },
+  "Ottoman_01": {
+    "name": "Ottoman 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/Ottoman_01",
+    "authors": [
+      "Caspian Fortune"
+    ]
+  },
+  "vintage_suitcase": {
+    "name": "Vintage Suitcase",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/vintage_suitcase",
+    "authors": [
+      "Maximilian Schuster"
+    ]
+  },
+  "wooden_stool_02": {
+    "name": "Wooden Stool 02",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wooden_stool_02",
+    "authors": [
+      "Kuutti Siitonen"
+    ]
+  },
+  "planter_box_02": {
+    "name": "Planter Box 02",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/planter_box_02",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "folding_wooden_stool": {
+    "name": "Folding Wooden Stool",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/folding_wooden_stool",
+    "authors": [
+      "Ulan Cabanilla"
+    ]
+  },
+  "treasure_chest": {
+    "name": "Treasure Chest",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/treasure_chest",
+    "authors": [
+      "Rico Cilliers"
+    ]
+  },
+  "wooden_bucket_01": {
+    "name": "Wooden Bucket 01",
+    "type": "models",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/wooden_bucket_01",
+    "authors": [
+      "James Ray Cock"
+    ]
+  },
+  "comfy_cafe": {
+    "name": "Comfy Café",
+    "type": "hdris",
+    "source": "Poly Haven",
+    "license": "CC0 1.0",
+    "url": "https://polyhaven.com/a/comfy_cafe",
+    "authors": [
+      "Sergej Majboroda"
+    ]
+  }
+}
