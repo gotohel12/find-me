@@ -19,7 +19,8 @@
     "@findme/shared": "*",
     "fastify": "^5.2.0",
     "ioredis": "^5.4.2",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

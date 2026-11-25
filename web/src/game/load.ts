@@ -1,5 +1,5 @@
 /** Loads packed scene + character assets (see tools/scene_pack.py for the formats). */
-import type { Mask } from '@findme/shared';
+import { type Mask, depthScaleFor } from '@findme/shared';
 
 export interface SceneMeta {
   sceneId: string;
@@ -149,9 +149,9 @@ export function forbiddenAt(s: SceneData, x: number, y: number): boolean {
   return s.forbidden[yi * s.dw + xi] === 1;
 }
 
-/** Scale that makes the sprite real-size at depth d. */
+/** Scale that gives the sprite its in-game size at depth d (shared with the server). */
 export function depthScale(s: SceneData, sp: SpriteData, d: number): number {
-  return s.meta.focalPx / Math.max(d, 0.05) / sp.ppm;
+  return depthScaleFor(s.meta.focalPx, d, sp.ppm);
 }
 
 export function samplePixel(s: SceneData, x: number, y: number): [number, number, number] {

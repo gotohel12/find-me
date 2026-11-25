@@ -3,7 +3,7 @@ import { formatCountdown } from '@findme/shared';
 import { useI18n } from '../app.tsx';
 import { api, type Player, type Today } from '../api.ts';
 
-export function Home({ onHide }: { onHide: (sceneId: string) => void }) {
+export function Home({ onHide, onSeek }: { onHide: (sceneId: string) => void; onSeek?: () => void }) {
   const { t, lang, setLang } = useI18n();
   const [today, setToday] = useState<Today | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
@@ -21,8 +21,10 @@ export function Home({ onHide }: { onHide: (sceneId: string) => void }) {
         setLeft(d.nextReleaseInMs);
       })
       .catch(() => setError(true));
-    // A guest profile is optional for the home screen (works before the database is connected).
-    api.hasAccounts().then((ok) => (ok ? api.ensurePlayer(lang).then(setPlayer, () => setPlayer(null)) : setPlayer(null)));
+    // The guest profile is created once by App; here we only read it (if the server has accounts).
+    api.hasAccounts().then((ok) => {
+      if (ok && localStorage.getItem('findme.token')) api.me().then(setPlayer, () => setPlayer(null));
+    });
   };
   useEffect(load, []);
 
@@ -38,8 +40,8 @@ export function Home({ onHide }: { onHide: (sceneId: string) => void }) {
   }, [today]);
 
   const soon = () => {
-    setToast(t('soon'));
-    setTimeout(() => setToast(null), 1800);
+    setToast(t('home.needs_online'));
+    setTimeout(() => setToast(null), 3500);
   };
 
   const portrait = typeof innerHeight === 'number' && innerHeight > innerWidth;
@@ -96,7 +98,7 @@ export function Home({ onHide }: { onHide: (sceneId: string) => void }) {
         <button class="btn-big hide" onClick={() => today && onHide(today.scene.id)} disabled={!today}>
           {t('home.hide')}
         </button>
-        <button class="btn-big seek" onClick={soon} disabled={!today}>
+        <button class="btn-big seek" onClick={onSeek ?? soon} disabled={!today}>
           {t('home.seek')}
         </button>
       </nav>

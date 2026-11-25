@@ -5,6 +5,9 @@ import { Splash } from './screens/Splash.tsx';
 import { Home } from './screens/Home.tsx';
 import { Hide, type HideResult } from './screens/Hide.tsx';
 import { Seek } from './screens/Seek.tsx';
+import { SeekOnline } from './screens/SeekOnline.tsx';
+import { api } from './api.ts';
+import { PAINT_SIZE } from '@findme/shared';
 import { loadScene, type SceneData } from './game/load.ts';
 
 interface I18n {
@@ -25,7 +28,21 @@ export function App() {
   const [lang, setLangState] = useState<Lang>(initialLang);
   const [splashDone, setSplashDone] = useState(false);
   const [online, setOnline] = useState(() => navigator.onLine);
-  const [screen, setScreen] = useState<'home' | 'loading' | 'hide' | 'pass' | 'seek' | 'missing'>('home');
+  const [screen, setScreen] = useState<'home' | 'loading' | 'hide' | 'pass' | 'seek' | 'online' | 'missing'>('home');
+  const [online2, setOnline2] = useState(false); // server has accounts
+  const [live, setLive] = useState<{ code: string } | 'sending' | null>(null);
+  const [challenge] = useState(() => new URLSearchParams(location.search).get('c') ?? undefined);
+  useEffect(() => {
+    api.hasAccounts().then(async (ok) => {
+      if (!ok) return;
+      try {
+        await api.ensurePlayer(lang);
+        setOnline2(true);
+      } catch {
+        /* offline play still works */
+      }
+    });
+  }, []);
   const [scene, setScene] = useState<SceneData | null>(null);
   const [hide, setHide] = useState<HideResult | null>(null);
 
@@ -67,18 +84,50 @@ export function App() {
           onSubmit={(r) => {
             setHide(r);
             setScreen('pass');
+            if (!online2) return;
+            setLive('sending');
+            const c = document.createElement('canvas');
+            c.width = c.height = PAINT_SIZE;
+            c.getContext('2d')!.putImageData(new ImageData(new Uint8ClampedArray(r.paint.data), PAINT_SIZE, PAINT_SIZE), 0, 0);
+            api
+              .submitHide({
+                sceneId: r.scene.meta.sceneId,
+                orientation: r.scene.base.includes('/portrait/') ? 'portrait' : 'landscape',
+                pose: r.sprite.pose,
+                angle: r.sprite.angle,
+                placement: r.placement,
+                paint: c.toDataURL('image/png').split(',')[1],
+              })
+              .then((x) => setLive({ code: x.code }), () => setLive(null));
           }}
         />
       ) : screen === 'pass' && hide ? (
         <div class="pass">
           <h1>{i18n.t('pass.title')}</h1>
+          {live === 'sending' && <p>{i18n.t('hide.sending')}</p>}
+          {live && live !== 'sending' && (
+            <>
+              <p>{i18n.t('pass.live')}</p>
+              <p class="code" dir="ltr">{i18n.t('pass.code', { code: live.code })}</p>
+            </>
+          )}
           <p>{i18n.t('pass.body')}</p>
           <button class="btn-big seek" onClick={() => setScreen('seek')}>
-            {i18n.t('pass.go')}
+            {i18n.t('pass.local')}
+          </button>
+          {online2 && (
+            <button class="btn" onClick={() => setScreen('online')}>
+              {i18n.t('pass.seek')}
+            </button>
+          )}
+          <button class="btn ghost" onClick={() => setScreen('home')}>
+            {i18n.t('seek.home')}
           </button>
         </div>
       ) : screen === 'seek' && hide ? (
         <Seek hide={hide} onAgain={() => setScreen('hide')} onHome={() => setScreen('home')} />
+      ) : screen === 'online' ? (
+        <SeekOnline challenge={challenge} onHome={() => setScreen('home')} onHide={() => setScreen('home')} />
       ) : screen === 'loading' ? (
         <div class="pass" aria-busy="true">
           <div class="spinner" />
@@ -92,7 +141,7 @@ export function App() {
           </button>
         </div>
       ) : (
-        <Home onHide={startHide} />
+        <Home onHide={startHide} onSeek={online2 ? () => setScreen('online') : undefined} />
       )}
     </I18nCtx.Provider>
   );
