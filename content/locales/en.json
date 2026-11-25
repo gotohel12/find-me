@@ -195,5 +195,6 @@
   "settings.master": "Master volume",
   "settings.sfx": "Effects",
   "settings.music": "Music",
-  "settings.reduceMotion": "Reduce motion"
+  "settings.reduceMotion": "Reduce motion",
+  "hint.noSpace": "Not enough room for that pose here"
 }

@@ -5,8 +5,8 @@
 import * as THREE from 'three';
 import { Engine, QUALITY, type Quality } from '../render/engine.ts';
 import { Input, type Action } from '../input/input.ts';
-import { initPhysics, Physics, CharacterBody } from './physics.ts';
-import { Hider, HIDER_SCALE, type PoseName } from '../gameplay/hider.ts';
+import { penetration, initPhysics, Physics, CharacterBody } from './physics.ts';
+import { Hider, HIDER_SCALE, POSES, type PoseName } from '../gameplay/hider.ts';
 import { OrbitFollow } from '../gameplay/camera.ts';
 import { PaintSystem, hitToBind, type BrushSettings, type Tool } from '../gameplay/paint.ts';
 import { sfx } from '../sfx.ts';
@@ -37,6 +37,8 @@ export interface GameView {
   loading: number; // 0..1, 1 = ready
   error: string | null;
   quality: Quality;
+  hint: string | null; // short message key, e.g. 'hint.noSpace'
+  clipCm: number; // deepest body penetration after the last pose (automated test)
 }
 
 const blenderToThree = (p: number[]) => new THREE.Vector3(p[0], p[2], -p[1]);
@@ -83,6 +85,8 @@ export class Game {
       loading: 0,
       error: null,
       quality: this.engine.quality,
+      hint: null,
+      clipCm: 0,
     };
   }
 
@@ -222,9 +226,76 @@ export class Game {
       this.poseHome = null;
     }
     this.hider.setPose(p);
-    if (p) this.placePose(p);
+    let clip = 0;
+    if (p) {
+      this.placePose(p);
+      clip = this.depenetrate();
+      if (clip > 0.01) {
+        // no room for this pose here: don't clip, say so instead
+        this.hider.setPose(null);
+        if (this.poseHome) {
+          this.body.teleport(this.poseHome);
+          this.poseHome = null;
+        }
+        sfx.tap();
+        this.flashHint('hint.noSpace');
+        this.emit({ pose: null, locked: false, clipCm: clip * 100 });
+        return;
+      }
+    }
     sfx.thunk();
-    this.emit({ pose: p, locked: false });
+    this.emit({ pose: p, locked: false, clipCm: clip * 100 });
+  }
+
+  private hintTimer = 0;
+  private flashHint(key: string) {
+    clearTimeout(this.hintTimer);
+    this.emit({ hint: key });
+    this.hintTimer = window.setTimeout(() => this.emit({ hint: null }), 2200);
+  }
+
+  /**
+   * Push the posed body out of anything it overlaps (furniture, walls), a few small steps.
+   * Returns the deepest remaining penetration in metres (0 = clean).
+   */
+  private depenetrate(step = 4): number {
+    const ex = this.body.collider;
+    const up = new THREE.Vector3(0, 1, 0);
+    let r = penetration(this.phys, this.hider.posedPoints(step), ex);
+    for (let it = 0; it < 6 && r.max > 0.004; it++) {
+      const local = r.push.clone().multiplyScalar(1.15).applyAxisAngle(up, -this.hider.root.rotation.y);
+      local.addScaledVector(local.clone().normalize(), 0.003);
+      this.hider.model.position.add(local);
+      r = penetration(this.phys, this.hider.posedPoints(step), ex);
+    }
+    return r.max;
+  }
+
+  /**
+   * Automated clipping test: every pose at every test spot, all vertices checked.
+   * Returns the worst penetration per pose (cm) and whether the game refused the pose.
+   */
+  clipReport(spots: [number, number, number][]) {
+    const rows: { pose: string; spot: number; clipCm: number; refused: boolean }[] = [];
+    for (const [i, s] of spots.entries()) {
+      for (const p of POSES) {
+        this.setPose(null);
+        this.body.teleport(new THREE.Vector3(s[0], s[1], s[2]));
+        this.hider.facing = 0;
+        this.hider.root.rotation.y = 0;
+        this.body.feet(this.hider.root.position);
+        this.setPose(p as PoseName);
+        const refused = this.hider.pose === null;
+        let clip = 0;
+        if (!refused) {
+          this.hider.measurePose();
+          clip = penetration(this.phys, this.hider.posedPoints(1), this.body.collider).max;
+        }
+        rows.push({ pose: p, spot: i, clipCm: Math.round(clip * 1000) / 10, refused });
+      }
+    }
+    this.setPose(null);
+    return rows;
   }
 
   /**
@@ -234,6 +305,8 @@ export class Game {
    */
   private placePose(p: PoseName) {
     const world = this.phys.world;
+    this.hider.root.rotation.y = this.hider.facing; // measure the final orientation, not mid-turn
+    this.body.feet(this.hider.root.position);
     const down = { x: 0, y: -1, z: 0 };
     const castDown = (x: number, y: number, z: number, max: number) => {
       const hit = world.castRay(new RAPIER.Ray({ x, y, z }, down), max, true, undefined, undefined, this.body.collider);

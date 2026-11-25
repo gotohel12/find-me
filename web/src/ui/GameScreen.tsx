@@ -300,6 +300,13 @@ export function GameScreen({ mapId, onExit }: { mapId: string; onExit: () => voi
             </div>
           )}
 
+          {v.hint && (
+            <div class="toast glass" role="status">
+              <Icon.info size={20} />
+              {t(v.hint)}
+            </div>
+          )}
+
           {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
         </>
       )}

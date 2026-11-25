@@ -195,5 +195,6 @@
   "settings.master": "الصوت العام",
   "settings.sfx": "المؤثرات",
   "settings.music": "الموسيقى",
-  "settings.reduceMotion": "تقليل الحركة"
+  "settings.reduceMotion": "تقليل الحركة",
+  "hint.noSpace": "ما فيه مكان كافي لهالوضعية هنا"
 }

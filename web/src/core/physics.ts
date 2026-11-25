@@ -110,9 +110,63 @@ export class CharacterBody {
   }
 }
 
-/** Ray from the camera target backwards: shortest free distance (keeps the camera out of walls). */
+const CAM_BALL = new RAPIER.Ball(0.14);
+const ROT0 = { x: 0, y: 0, z: 0, w: 1 };
+
+/**
+ * Sphere cast from the camera target backwards (radius 14 cm, like the near plane's corners):
+ * the camera never sees through a wall, a shelf or a table edge.
+ */
 export function cameraClearance(phys: Physics, from: THREE.Vector3, dir: THREE.Vector3, maxDist: number, exclude?: RAPIER.Collider) {
-  const ray = new RAPIER.Ray({ x: from.x, y: from.y, z: from.z }, { x: dir.x, y: dir.y, z: dir.z });
-  const hit = phys.world.castRay(ray, maxDist, true, undefined, undefined, exclude);
-  return hit ? Math.max(0.25, hit.timeOfImpact - 0.12) : maxDist;
+  const hit = phys.world.castShape(
+    { x: from.x, y: from.y, z: from.z }, ROT0, { x: dir.x, y: dir.y, z: dir.z }, CAM_BALL, 0, maxDist, true, undefined, undefined, exclude,
+  ) as unknown as { time_of_impact?: number; timeOfImpact?: number } | null;
+  if (!hit) return maxDist;
+  const toi = hit.time_of_impact ?? hit.timeOfImpact ?? maxDist;
+  return Math.max(0.2, toi - 0.02);
+}
+
+const AXES = [
+  { x: 1, y: 0, z: 0 }, { x: -1, y: 0, z: 0 }, { x: 0, y: 1, z: 0 },
+  { x: 0, y: -1, z: 0 }, { x: 0, y: 0, z: 1 }, { x: 0, y: 0, z: -1 },
+];
+
+/**
+ * Is a point inside solid map geometry? Six rays: when most first-hits are back faces
+ * (normal facing along the ray), the point is enclosed. Works on open photoscans too.
+ */
+export function pointInside(phys: Physics, p: THREE.Vector3, exclude?: RAPIER.Collider): boolean {
+  let hits = 0;
+  let back = 0;
+  for (const d of AXES) {
+    const h = phys.world.castRayAndGetNormal(new RAPIER.Ray({ x: p.x, y: p.y, z: p.z }, d), 3, false, undefined, undefined, exclude);
+    if (!h) continue;
+    hits++;
+    if (h.normal.x * d.x + h.normal.y * d.y + h.normal.z * d.z > 0) back++;
+  }
+  return hits >= 4 && back * 2 > hits;
+}
+
+/**
+ * Penetration of a set of body points into the map: the deepest one and a push vector
+ * (depth-weighted average of "to the nearest surface" vectors) that would free them.
+ */
+export function penetration(phys: Physics, pts: THREE.Vector3[], exclude?: RAPIER.Collider) {
+  let max = 0;
+  let inside = 0;
+  const push = new THREE.Vector3();
+  let wsum = 0;
+  for (const p of pts) {
+    if (!pointInside(phys, p, exclude)) continue;
+    const pr = phys.world.projectPoint({ x: p.x, y: p.y, z: p.z }, false, undefined, undefined, exclude);
+    if (!pr) continue;
+    const v = new THREE.Vector3(pr.point.x - p.x, pr.point.y - p.y, pr.point.z - p.z);
+    const d = v.length();
+    inside++;
+    if (d > max) max = d;
+    push.addScaledVector(v, d);
+    wsum += d;
+  }
+  if (wsum > 0) push.multiplyScalar(1 / wsum).setLength(max);
+  return { max, inside, push };
 }

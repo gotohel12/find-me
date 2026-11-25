@@ -101,6 +101,19 @@ export class Hider {
    * world space: the lowest point of the body, and the lowest point of the torso (the
    * seat contact for sitting poses). Samples every few vertices of the skinned mesh.
    */
+  /** World positions of the current (skinned) pose, every `step`-th vertex. */
+  posedPoints(step = 3): THREE.Vector3[] {
+    this.root.updateMatrixWorld(true);
+    const n = this.mesh.geometry.getAttribute('position').count;
+    const out: THREE.Vector3[] = [];
+    for (let i = 0; i < n; i += step) {
+      const v = new THREE.Vector3();
+      this.mesh.getVertexPosition(i, v);
+      out.push(v.applyMatrix4(this.mesh.matrixWorld));
+    }
+    return out;
+  }
+
   measurePose(): { minY: number; seatY: number; samples: THREE.Vector3[] } {
     const a = this.pose ? this.actions.get(`pose_${this.pose}`) : null;
     const saved: [THREE.AnimationAction, number][] = [];
@@ -126,7 +139,7 @@ export class Hider {
       v.applyMatrix4(this.mesh.matrixWorld);
       if (v.y < minY) minY = v.y;
       if (part && part.getX(i) === 2 && v.y < seatY) seatY = v.y;
-      if (i % 40 === 0) samples.push(v.clone());
+      if (i % 20 === 0) samples.push(v.clone());
     }
     for (const [x, w] of saved) x.setEffectiveWeight(w);
     return { minY, seatY: Number.isFinite(seatY) ? seatY : minY, samples };
