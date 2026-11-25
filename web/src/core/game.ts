@@ -20,6 +20,7 @@ export interface MapMeta {
   size: [number, number, number];
   spawn: { hiders: number[][]; seekers: number[][] };
   sun?: { dirWorld: [number, number, number] };
+  lights?: { pos: number[]; color: number[]; intensity: number; distance: number }[];
 }
 
 export interface GameView {
@@ -127,7 +128,7 @@ export class Game {
       const { before, after, merged } = mergeStatic(map);
       console.info(`[findme] level draw calls: ${before} -> ${after}`);
       this.engine.scene.add(merged);
-      this.engine.setupLights(meta.sun?.dirWorld ?? null, meta.size);
+      this.engine.setupLights(meta.sun?.dirWorld ?? null, meta.size, meta.lights ?? []);
       this.hider = new Hider(hiderGltf);
       this.engine.scene.add(this.hider.root);
       const spawn = blenderToThree(meta.spawn.hiders[0] ?? [0, meta.size[1] / 2, 0.05]);

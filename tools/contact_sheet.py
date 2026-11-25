@@ -63,9 +63,9 @@ def main() -> None:
     os.makedirs(a.out, exist_ok=True)
     made = scene_sheets(a.art, a.out)
     c = character_sheet(a.art, a.out)
-    for p in glob.glob(os.path.join(a.art, "3d", "maps", "*", "preview.png")):
+    for p in glob.glob(os.path.join(a.art, "3d", "maps", "*", "preview*.png")):
         with Image.open(p) as im:
-            im.convert("RGB").save(os.path.join(a.out, f"map_{os.path.basename(os.path.dirname(p))}.jpg"), quality=88)
+            im.convert("RGB").save(os.path.join(a.out, f"map_{os.path.basename(os.path.dirname(p))}_{os.path.splitext(os.path.basename(p))[0]}.jpg"), quality=88)
     poses = sorted(glob.glob(os.path.join(a.art, "3d", "poses", "*.png")))
     if poses:
         cell = 200

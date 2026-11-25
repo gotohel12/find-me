@@ -103,8 +103,8 @@ def build_mesh():
         sv.radius = (J[n][1], J[n][2])
         sv.use_root = n == "pelvis"
     sub = obj.modifiers.new("subd", "SUBSURF")
-    sub.levels = 2
-    sub.render_levels = 2
+    sub.levels = 3  # 20–40k triangles: smooth silhouette in close-up paint mode
+    sub.render_levels = 3
     for m in ("skin", "subd"):
         bpy.ops.object.modifier_apply(modifier=m)
     bpy.ops.object.shade_smooth()
@@ -114,7 +114,7 @@ def build_mesh():
     sm.iterations = 4
     bpy.ops.object.modifier_apply(modifier="smooth")
     # round head + antenna as their own smooth shells, joined into the same object
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=48, ring_count=32, radius=0.108, location=(0, 0, 0.338))
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=72, ring_count=44, radius=0.108, location=(0, 0, 0.338))
     head = bpy.context.active_object
     head.scale = (1.0, 0.95, 0.93)
     bpy.ops.mesh.primitive_cylinder_add(vertices=16, radius=0.0055, depth=0.05, location=(0.004, 0, 0.455),
@@ -191,7 +191,16 @@ def part_colors(obj):
 
 
 def material(obj):
-    m = fm.mat_solid("hider_white", (0.92, 0.92, 0.91), rough=0.5)
+    m = fm.mat_solid("hider_white", (0.92, 0.92, 0.91), rough=0.55)
+    b = m.node_tree.nodes["Principled BSDF"]
+    for k, v in (("Sheen Weight", 0.35), ("Sheen Roughness", 0.4), ("Subsurface Weight", 0.05)):
+        try:
+            b.inputs[k].default_value = v  # soft vinyl-toy feel
+        except KeyError:
+            pass
+    me = obj.data
+    me.calc_loop_triangles()
+    print(f"[hider3d] triangles: {len(me.loop_triangles)}")
     obj.data.materials.clear()
     obj.data.materials.append(m)
 

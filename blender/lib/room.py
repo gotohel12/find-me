@@ -107,6 +107,7 @@ def build_shell(t: Theme, rng: random.Random):
     fm.box("skirt_back", (W, 0.02, 0.1), (0, D - 0.01, 0.05), sk, 0.003)
     for sx in (-1, 1):
         fm.box("skirt_side", (0.02, D, 0.1), (sx * (W / 2 - 0.01), D / 2, 0.05), sk, 0.003)
+    fm.world_uv([bpy.data.objects[n] for n in ("floor", "back_wall", "left_wall", "right_wall")])
 
 
 def _move_bbox(root, cx=None, cy=None):
@@ -201,9 +202,11 @@ def _templates(ids, rng, max_dim):
     return out
 
 
-def scatter(t: Theme, rng: random.Random, ids, n: int, *, floor_only=False):
+def scatter(t: Theme, rng: random.Random, ids, n: int, *, floor_only=False, region=None, max_dim=None, tpls=None):
+    """region = (xmin, xmax, ymin, ymax, zmin, zmax) keeps props on one piece of furniture."""
     W, D, H = t.room
-    tpls = _templates(ids, rng, 0.95 if floor_only else 0.55)
+    if tpls is None:
+        tpls = _templates(ids, rng, max_dim or (0.95 if floor_only else 0.55))
     if not tpls:
         return 0
     scene = bpy.context.scene
@@ -220,7 +223,11 @@ def scatter(t: Theme, rng: random.Random, ids, n: int, *, floor_only=False):
         tp = rng.choice(choices)
         r = tp["r"]
         x = rng.uniform(-W / 2 + 0.1, W / 2 - 0.1)
-        if floor_only:
+        if region is not None:
+            x = rng.uniform(region[0], region[1])
+            y = rng.uniform(region[2], region[3])
+            z0 = rng.uniform(region[4], region[5])
+        elif floor_only:
             # keep the foreground clear so the scene reads from the camera
             y = rng.uniform(1.5 if tp["h"] > 0.25 else 1.0, D - 0.15)
             z0 = 0.4
@@ -232,6 +239,8 @@ def scatter(t: Theme, rng: random.Random, ids, n: int, *, floor_only=False):
             continue
         on_floor = loc.z < 0.02
         if floor_only != on_floor:
+            continue
+        if region is not None and not (region[0] <= loc.x <= region[1] and region[2] <= loc.y <= region[3]):
             continue
         # headroom: nothing above for the prop's height (shelf boards above)
         h2, l2, *_ = scene.ray_cast(deps, loc + Vector((0, 0, 0.003)), up, distance=tp["h"] + 0.02)
@@ -256,6 +265,10 @@ def scatter(t: Theme, rng: random.Random, ids, n: int, *, floor_only=False):
         if count % 8 == 0:
             deps = bpy.context.evaluated_depsgraph_get()
     return count
+
+
+def templates(ids, rng, max_dim):
+    return _templates(ids, rng, max_dim)
 
 
 def hang_decor(t: Theme, rng: random.Random, n: int = 6):

@@ -482,6 +482,46 @@ def link(obj, role=ROLE_SURFACE):
     return obj
 
 
+def world_uv(objs, cube_size=1.0):
+    """Cube-project UVs so 1 UV unit = cube_size metres on every face (no stretching on long walls)."""
+    objs = [o for o in objs if o.type == "MESH"]
+    if not objs:
+        return
+    bpy.ops.object.mode_set(mode="OBJECT") if bpy.context.object and bpy.context.object.mode != "OBJECT" else None
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in objs:
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = objs[0]
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.cube_project(cube_size=cube_size, correct_aspect=True, clip_to_bounds=False, scale_to_bounds=False)
+    bpy.ops.object.mode_set(mode="OBJECT")
+    bpy.ops.object.select_all(action="DESELECT")
+
+
+def image_material(name, rgb, rough=0.7, sheen=0.0):
+    """Material from an sRGB numpy image (h, w, 3) in 0..1: packed into the .blend and the glTF."""
+    h, w = rgb.shape[:2]
+    img = bpy.data.images.new(name, w, h, alpha=False)
+    px = np.ones((h, w, 4), dtype=np.float32)
+    px[..., :3] = rgb[::-1]  # Blender images start at the bottom row
+    img.pixels.foreach_set(px.ravel())
+    img.file_format = "PNG"
+    img.pack()
+    m = bpy.data.materials.new(name)
+    nt, b = _principled(m)
+    t = nt.nodes.new("ShaderNodeTexImage")
+    t.image = img
+    nt.links.new(t.outputs["Color"], b.inputs["Base Color"])
+    b.inputs["Roughness"].default_value = rough
+    if sheen:
+        try:
+            b.inputs["Sheen Weight"].default_value = sheen
+        except KeyError:
+            pass
+    return m
+
+
 def box(name, size, location, mat=None, bevel=0.0, rotation=(0, 0, 0), role=ROLE_SURFACE):
     bpy.ops.mesh.primitive_cube_add(size=1, location=location, rotation=rotation)
     o = bpy.context.active_object

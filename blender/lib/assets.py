@@ -198,7 +198,12 @@ def use_hdri(asset_id: str, res: str = "2k", strength: float = 1.0, rotation: fl
 
 # ------------------------------------------------------------------ PBR textures
 def pbr_material(asset_id: str, res: str = "1k", scale: float = 1.0, name: str | None = None):
-    """Principled material from a Poly Haven texture set (box-projected, world-scaled)."""
+    """Principled material from a Poly Haven texture set.
+
+    Uses the mesh UVs (give hand-built meshes world-scale UVs with fm.world_uv) and a
+    Mapping scale, which the glTF exporter writes as KHR_texture_transform, so the
+    game shows exactly what Blender renders.
+    """
     f = files(asset_id)
 
     def grab(key, fmt="jpg"):
@@ -219,14 +224,12 @@ def pbr_material(asset_id: str, res: str = "1k", scale: float = 1.0, name: str |
     tc = nt.nodes.new("ShaderNodeTexCoord")
     mp = nt.nodes.new("ShaderNodeMapping")
     mp.inputs["Scale"].default_value = (scale, scale, scale)
-    nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
+    nt.links.new(tc.outputs["UV"], mp.inputs["Vector"])
 
     def tex(path, colorspace):
         t = nt.nodes.new("ShaderNodeTexImage")
         t.image = bpy.data.images.load(path)
         t.image.colorspace_settings.name = colorspace
-        t.projection = "BOX"
-        t.projection_blend = 0.25
         nt.links.new(mp.outputs["Vector"], t.inputs["Vector"])
         return t
 

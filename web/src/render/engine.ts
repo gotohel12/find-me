@@ -86,7 +86,11 @@ export class Engine {
   }
 
   /** Map lighting: warm key light matching the Blender sun + soft fill. */
-  setupLights(sunDirWorld: [number, number, number] | null, size: [number, number, number]) {
+  setupLights(
+    sunDirWorld: [number, number, number] | null,
+    size: [number, number, number],
+    points: { pos: number[]; color: number[]; intensity: number; distance: number }[] = [],
+  ) {
     const hemi = new THREE.HemisphereLight(0xfff4e6, 0x6b5a48, 0.55);
     this.scene.add(hemi);
     this.sun = new THREE.DirectionalLight(0xfff0dd, 2.2);
@@ -107,10 +111,19 @@ export class Engine {
     this.sun.shadow.bias = -0.0004;
     this.sun.shadow.normalBias = 0.02;
     this.scene.add(this.sun, this.sun.target);
-    // ceiling bounce so the closed room isn't dark
-    const bounce = new THREE.PointLight(0xffe8cc, 6, 12, 1.6);
-    bounce.position.set(0, 2.4, -D / 2);
-    this.scene.add(bounce);
+    // lamps and window sky light from the map (no shadows: cheap on phones)
+    if (points.length) {
+      for (const p of points) {
+        const l = new THREE.PointLight(new THREE.Color(p.color[0], p.color[1], p.color[2]), p.intensity, p.distance, 1.6);
+        l.position.set(p.pos[0], p.pos[2], -p.pos[1]);
+        this.scene.add(l);
+      }
+    } else {
+      // ceiling bounce so a closed room isn't dark
+      const bounce = new THREE.PointLight(0xffe8cc, 6, 12, 1.6);
+      bounce.position.set(0, 2.4, -D / 2);
+      this.scene.add(bounce);
+    }
     this.applyQuality();
   }
 
