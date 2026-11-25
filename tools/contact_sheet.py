@@ -63,6 +63,23 @@ def main() -> None:
     os.makedirs(a.out, exist_ok=True)
     made = scene_sheets(a.art, a.out)
     c = character_sheet(a.art, a.out)
+    for p in glob.glob(os.path.join(a.art, "3d", "maps", "*", "preview.png")):
+        with Image.open(p) as im:
+            im.convert("RGB").save(os.path.join(a.out, f"map_{os.path.basename(os.path.dirname(p))}.jpg"), quality=88)
+    poses = sorted(glob.glob(os.path.join(a.art, "3d", "poses", "*.png")))
+    if poses:
+        cell = 200
+        cols = 6
+        rows = (len(poses) + cols - 1) // cols
+        sheet = Image.new("RGB", (cols * cell, rows * (cell + 18)), (232, 228, 240))
+        d = ImageDraw.Draw(sheet)
+        for i, p in enumerate(poses):
+            with Image.open(p) as im:
+                t = im.convert("RGBA").resize((cell, cell), Image.LANCZOS)
+            x, y = (i % cols) * cell, (i // cols) * (cell + 18)
+            sheet.paste(t, (x, y), t)
+            d.text((x + 6, y + cell + 2), os.path.splitext(os.path.basename(p))[0], fill=(40, 30, 80))
+        sheet.save(os.path.join(a.out, "hider3d_poses.jpg"), quality=88)
     icon = os.path.join(a.art, "ui", "app_icon.png")
     if os.path.isfile(icon):
         with Image.open(icon) as im:
