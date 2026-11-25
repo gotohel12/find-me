@@ -4,7 +4,7 @@ import { type Physics, cameraClearance } from '../core/physics.ts';
 import type RAPIER from '@dimforge/rapier3d-compat';
 
 export class OrbitFollow {
-  yaw = Math.PI; // looking toward -Z (into the room)
+  yaw = 0; // camera on the +Z side (the entrance), looking into the room
   pitch = 0.25;
   distance = 2.6;
   smoothing = false;

@@ -23,7 +23,7 @@ export class Hider {
   private current: THREE.AnimationAction | null = null;
   pose: PoseName | null = null;
   locked = false;
-  facing = 0; // yaw radians
+  facing = Math.PI; // yaw radians: starts facing -Z, into the room
   height = 1;
 
   constructor(gltf: GLTF) {

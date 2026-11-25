@@ -91,7 +91,7 @@ export class Engine {
     size: [number, number, number],
     points: { pos: number[]; color: number[]; intensity: number; distance: number }[] = [],
   ) {
-    const hemi = new THREE.HemisphereLight(0xfff4e6, 0x6b5a48, 0.55);
+    const hemi = new THREE.HemisphereLight(0xfff4e6, 0x6b5a48, 0.45);
     this.scene.add(hemi);
     this.sun = new THREE.DirectionalLight(0xfff0dd, 2.2);
     // Blender is Z-up; the glTF exporter makes it Y-up: (x, y, z) -> (x, z, -y)
@@ -114,7 +114,7 @@ export class Engine {
     // lamps and window sky light from the map (no shadows: cheap on phones)
     if (points.length) {
       for (const p of points) {
-        const l = new THREE.PointLight(new THREE.Color(p.color[0], p.color[1], p.color[2]), p.intensity, p.distance, 1.6);
+        const l = new THREE.PointLight(new THREE.Color(p.color[0], p.color[1], p.color[2]), p.intensity * 5, p.distance, 1.4);
         l.position.set(p.pos[0], p.pos[2], -p.pos[1]);
         this.scene.add(l);
       }
