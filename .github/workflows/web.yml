@@ -17,10 +17,11 @@ jobs:
       - run: npm run test -w @findme/web
       - run: npm run build -w @findme/web
         env: { FINDME_SKIP_BUILD: '1' }
-      - name: Initial JS budget (< 200 KB gzipped)
+      - name: Initial JS budget (menu < 200 KB gzipped; the 3D game loads on demand)
         run: |
-          total=$(find web/dist/assets -name '*.js' ! -name '*pixi*' -exec gzip -c {} \; | wc -c)
-          echo "initial JS gzipped: $total bytes"; test "$total" -lt 204800
+          total=$(find web/dist/assets -maxdepth 1 -name 'index-*.js' -exec gzip -c {} \; | wc -c)
+          game=$(find web/dist/assets -maxdepth 1 -name '*.js' ! -name 'index-*.js' -exec gzip -c {} \; | wc -c)
+          echo "menu JS gzipped: $total bytes; 3D game JS gzipped: $game bytes"; test "$total" -lt 204800
       - uses: actions/upload-artifact@v4
         with: { name: web-dist, path: web/dist }
       - name: Publish the built site to branch web-preview (for automated browser tests)
