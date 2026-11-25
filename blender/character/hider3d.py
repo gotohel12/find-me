@@ -103,8 +103,8 @@ def build_mesh():
         sv.radius = (J[n][1], J[n][2])
         sv.use_root = n == "pelvis"
     sub = obj.modifiers.new("subd", "SUBSURF")
-    sub.levels = 3  # 20–40k triangles: smooth silhouette in close-up paint mode
-    sub.render_levels = 3
+    sub.levels = 4  # dense, then an even decimate: ~30k triangles, smooth in close-up paint mode
+    sub.render_levels = 4
     for m in ("skin", "subd"):
         bpy.ops.object.modifier_apply(modifier=m)
     bpy.ops.object.shade_smooth()
@@ -113,8 +113,11 @@ def build_mesh():
     sm.factor = 0.5
     sm.iterations = 4
     bpy.ops.object.modifier_apply(modifier="smooth")
+    dec = obj.modifiers.new("dec", "DECIMATE")
+    dec.ratio = 0.72
+    bpy.ops.object.modifier_apply(modifier="dec")
     # round head + antenna as their own smooth shells, joined into the same object
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=72, ring_count=44, radius=0.108, location=(0, 0, 0.338))
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=64, ring_count=40, radius=0.108, location=(0, 0, 0.338))
     head = bpy.context.active_object
     head.scale = (1.0, 0.95, 0.93)
     bpy.ops.mesh.primitive_cylinder_add(vertices=16, radius=0.0055, depth=0.05, location=(0.004, 0, 0.455),
