@@ -122,7 +122,7 @@ const ROT0 = { x: 0, y: 0, z: 0, w: 1 };
  */
 export function cameraClearance(phys: Physics, from: THREE.Vector3, dir: THREE.Vector3, maxDist: number, exclude?: RAPIER.Collider) {
   const hit = phys.world.castShape(
-    { x: from.x, y: from.y, z: from.z }, ROT0, { x: dir.x, y: dir.y, z: dir.z }, CAM_BALL, 0, maxDist, true, undefined, undefined, exclude,
+    { x: from.x, y: from.y, z: from.z }, ROT0, { x: dir.x, y: dir.y, z: dir.z }, CAM_BALL, 0, maxDist, false, undefined, undefined, exclude, // start overlaps ignored when moving away
   ) as unknown as { time_of_impact?: number; timeOfImpact?: number } | null;
   if (!hit) return maxDist;
   const toi = hit.time_of_impact ?? hit.timeOfImpact ?? maxDist;
