@@ -34,6 +34,10 @@ export function Menu({ onPractice }: { onPractice: () => void }) {
               <Icon.info size={20} />
               {t('menu.credits')}
             </button>
+            <button class="btn ghost lang-mini" onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} lang={lang === 'ar' ? 'en' : 'ar'}>
+              <Icon.globe size={20} />
+              {lang === 'ar' ? 'English' : 'العربية'}
+            </button>
           </div>
           <button class="btn ghost" onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} lang={lang === 'ar' ? 'en' : 'ar'}>
             <Icon.globe size={20} />

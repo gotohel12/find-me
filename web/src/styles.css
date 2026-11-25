@@ -91,13 +91,29 @@ select option { background: #1a1638; }
 [dir='rtl'] .menu-shade { background: linear-gradient(270deg, rgba(15,12,36,.94) 0%, rgba(15,12,36,.6) 55%, rgba(15,12,36,.2) 100%); }
 @keyframes kenburns { to { transform: scale(1.14) translate(-1.5%, 1%); } }
 .menu-inner { position: relative; width: min(1100px, 100%); display: grid; gap: 22px; justify-items: start; }
-.menu .title { margin: 0; display: flex; flex-wrap: wrap; gap: 0 18px; align-items: baseline; font-family: var(--display); font-weight: 800; font-size: clamp(56px, 11vw, 120px); line-height: .95; text-shadow: 0 6px 30px rgba(0,0,0,.4); }
+.menu .title { margin: 0; display: flex; flex-wrap: wrap; gap: 0 18px; align-items: baseline; font-family: var(--display); font-weight: 800; font-size: clamp(44px, min(11vw, 15vh), 120px); line-height: .95; text-shadow: 0 6px 30px rgba(0,0,0,.4); }
 .menu .title [lang='ar'] { color: var(--accent); }
 .tagline { margin: 0; font-size: clamp(16px, 2.4vw, 20px); color: var(--muted); max-width: 520px; line-height: 1.6; }
 .menu-btns { display: grid; gap: 12px; width: min(420px, 100%); }
 .menu-btns .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .menu-foot { position: absolute; bottom: max(14px, env(safe-area-inset-bottom)); inset-inline: 0; display: flex; justify-content: center; gap: 6px 14px; font-size: 13px; color: var(--muted); text-align: center; flex-wrap: wrap; direction: ltr; }
 .menu-foot b { color: var(--text); }
+
+@media (max-height: 520px) {
+  .menu { padding-bottom: max(34px, env(safe-area-inset-bottom)); }
+  .menu-inner { gap: 10px; }
+  .tagline { font-size: 14px; }
+  .menu-btns { grid-template-columns: 1fr 1fr; width: min(560px, 100%); gap: 8px; }
+  .menu-btns .row { grid-column: 1 / -1; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .menu-btns > .btn.ghost { display: none; }
+  .menu-btns .row .lang-mini { display: inline-flex; }
+  .btn.lg { min-height: 52px; font-size: 18px; padding: 0 18px; }
+  .btn { min-height: 44px; font-size: 15px; }
+  .menu-foot { font-size: 11px; bottom: max(8px, env(safe-area-inset-bottom)); }
+  .modal { padding: 16px; gap: 12px; max-height: 92vh; }
+  .modal-head h2 { font-size: 22px; }
+}
+.lang-mini { display: none; }
 
 /* loading */
 .loading { position: fixed; inset: 0; z-index: 20; display: grid; place-content: center; gap: 16px; text-align: center; padding: 24px; background: radial-gradient(circle at 50% 40%, #2a2160, var(--ink) 70%); }
