@@ -1,6 +1,7 @@
 # Render Blueprint — FIND ME / لقني. Developed by Mohsen ~ Danial. © 2026 MD Studio.
 # One FREE web service serves the game AND the API.
-# Database: Neon free Postgres -> paste its connection string as DATABASE_URL in the Render dashboard.
+# Database: Render free Postgres (findme-db), linked automatically below. Free databases expire after
+# 30 days unless upgraded or moved (e.g. to Neon): see README.
 # No cron job (paid on Render): the API works out today's scene from content/schedule.json.
 services:
   - type: web
@@ -17,4 +18,13 @@ services:
       - key: FINDME_SKIP_BUILD
         value: "1"
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: findme-db
+          property: connectionString
+
+databases:
+  - name: findme-db
+    plan: free
+    region: frankfurt
+    databaseName: findme
+    postgresMajorVersion: "16"
