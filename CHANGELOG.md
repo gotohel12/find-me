@@ -16,7 +16,7 @@
 - `web/`: Vite + Preact shell, AR/EN with RTL, splash with credit, home with today's scene and countdown, offline banner, PWA manifest + service worker.
 - `render.yaml`, GitHub workflows (web, api, art), dev/test/art/deploy scripts.
 
-### Changed (deploy on the existing free "emberwing" Render service)
+### Changed (deploy on its own free Render service "find-me")
 - One free web service serves the web app and the API (`@fastify/static`, SPA fallback); npm workspaces instead of pnpm.
 - Database and Redis are optional: the home screen and today's scene work without them; Neon free Postgres via `DATABASE_URL`; migrations run on boot.
 - No cron job (paid on Render): today's scene comes from the schedule.

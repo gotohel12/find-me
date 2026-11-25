@@ -1,0 +1,22 @@
+{
+  "pose": "kneel",
+  "angle": "side",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    265.1,
+    472.0
+  ],
+  "bbox": [
+    197,
+    205,
+    315,
+    472
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}
