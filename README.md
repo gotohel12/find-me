@@ -58,10 +58,10 @@ npm test                # everything that runs without Blender
 
 ## Deploy
 
-Live on the existing free Render service **emberwing** (`https://emberwing.onrender.com`). One web service serves the game and the API:
+Runs on its own free Render web service **find-me** (created from `render.yaml`). One web service serves the game and the API:
 
 - Build: `npm install --include=dev && npm run build` · Start: `npm start` · Health: `/health`
-- `DATABASE_URL` (Render → emberwing → Environment): a free **Neon** Postgres connection string. Without it the game still loads; accounts and hides need it.
+- `DATABASE_URL` (Render → find-me → Environment): a free **Neon** Postgres connection string. Without it the game still loads; accounts and hides need it.
 - No cron job and no Redis (both optional): today's scene comes from `content/schedule.json`.
 
 **Honest note:** free Render instances sleep after ~15 minutes idle, so the first visit after a quiet spell can take ~30–60 s.

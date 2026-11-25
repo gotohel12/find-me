@@ -140,6 +140,10 @@ class Rig:
 
         def E(key):
             r = pose.get(key, (0, 0, 0))
+            # Pose tables use "positive Y = away from the body" for limbs; Blender's +Y swings a
+            # hanging left limb toward the body, so flip it for limbs.
+            if key.startswith(("arm_", "leg_")):
+                r = (r[0], -r[1], r[2])
             return Euler(tuple(math.radians(a) for a in r), "XYZ").to_matrix().to_4x4()
 
         T = Matrix.Translation
