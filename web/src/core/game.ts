@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { Engine, QUALITY, type Quality } from '../render/engine.ts';
 import { Input, type Action } from '../input/input.ts';
-import { penetration, initPhysics, Physics, CharacterBody } from './physics.ts';
+import { penetration, QUERY_SOLID, initPhysics, Physics, CharacterBody } from './physics.ts';
 import { Hider, HIDER_SCALE, POSES, type PoseName } from '../gameplay/hider.ts';
 import { OrbitFollow } from '../gameplay/camera.ts';
 import { PaintSystem, hitToBind, type BrushSettings, type Tool } from '../gameplay/paint.ts';
@@ -323,7 +323,7 @@ export class Game {
     this.body.feet(this.hider.root.position);
     const down = { x: 0, y: -1, z: 0 };
     const castDown = (x: number, y: number, z: number, max: number) => {
-      const hit = world.castRay(new RAPIER.Ray({ x, y, z }, down), max, true, undefined, undefined, this.body.collider);
+      const hit = world.castRay(new RAPIER.Ray({ x, y, z }, down), max, true, undefined, QUERY_SOLID, this.body.collider);
       return hit ? y - hit.timeOfImpact : null;
     };
     const feet = this.body.feet(new THREE.Vector3());
@@ -545,6 +545,7 @@ export class Game {
     // fixed 60 Hz physics, rendered with interpolation (no jitter at any frame rate)
     const STEP = 1 / 60;
     this.acc += dt;
+    if (this.acc > STEP * 4) this.acc = STEP * 4; // never more than 4 physics steps per frame
     while (this.acc >= STEP) {
       this.acc -= STEP;
       this.coyote = this.body.grounded ? 0.12 : Math.max(0, this.coyote - STEP);
