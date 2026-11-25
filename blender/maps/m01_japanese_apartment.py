@@ -350,7 +350,42 @@ def lamps(m):
 
 
 # ------------------------------------------------------------------ Poly Haven props, placed by hand
-def put(aid, x, y, rot=0.0, z=0.0, fit=None, fit_axis="z"):
+def _centroid(root):
+    """Mean of the mesh vertices in world space (the back panel of a shelf pulls it backwards)."""
+    from mathutils import Vector  # type: ignore
+
+    acc = Vector((0, 0, 0))
+    n = 0
+    for o in room._walk(root):
+        if o.type != "MESH":
+            continue
+        mw = o.matrix_world
+        vs = o.data.vertices
+        step = max(1, len(vs) // 4000)
+        for i in range(0, len(vs), step):
+            acc += mw @ vs[i].co
+            n += 1
+    return acc / max(n, 1)
+
+
+def orient_to_wall(root, wall):
+    """Turn a cabinet/shelf so its back (the heavier side) faces the wall: wall = (dx, dy) unit vector."""
+    best, best_score = 0.0, -1e9
+    for k in range(4):
+        root.rotation_euler.z = k * math.pi / 2
+        bpy.context.view_layer.update()
+        lo, hi = assets.bounds(root)
+        depth = (hi.x - lo.x) if wall[0] else (hi.y - lo.y)
+        width = (hi.y - lo.y) if wall[0] else (hi.x - lo.x)
+        c = _centroid(root)
+        mid = (lo + hi) / 2
+        score = ((c.x - mid.x) * wall[0] + (c.y - mid.y) * wall[1]) / max(depth, 1e-3) + (0.5 if depth <= width else 0)
+        if score > best_score:
+            best, best_score = k * math.pi / 2, score
+    return best
+
+
+def put(aid, x, y, rot=0.0, z=0.0, fit=None, fit_axis="z", wall=None):
     """Import a photoscan, turn it, centre its footprint on (x, y), stand it on z.
     fit: scale so its size along fit_axis is this many metres (keeps real-world scale)."""
     if aid not in assets.catalog("models"):
@@ -359,7 +394,7 @@ def put(aid, x, y, rot=0.0, z=0.0, fit=None, fit_axis="z"):
     root = room._try_import(aid)
     if root is None:
         return None
-    root.rotation_euler.z = rot
+    root.rotation_euler.z = orient_to_wall(root, wall) if wall else rot
     bpy.context.view_layer.update()
     if fit:
         lo, hi = assets.bounds(root)
@@ -376,12 +411,12 @@ def place_props(m):
     p = {}
     p["chabudai"] = put("chinese_tea_table", -2.0, 2.8, 0, fit=0.33)
     cushions(m, -2.0, 2.8)
-    p["shelf_a"] = put("painted_wooden_shelves", X0 + 0.22, 1.1, -math.pi / 2, fit=1.6)
-    p["shelf_b"] = put("wooden_display_shelves_01", X0 + 0.22, 2.3, -math.pi / 2, fit=1.2)
-    p["tansu"] = put("vintage_wooden_drawer_01", -0.75, D - 0.3, math.pi, fit=0.9)
+    p["shelf_a"] = put("painted_wooden_shelves", X0 + 0.22, 1.1, fit=1.6, wall=(-1, 0))
+    p["shelf_b"] = put("wooden_display_shelves_01", X0 + 0.22, 2.3, fit=1.2, wall=(-1, 0))
+    p["tansu"] = put("vintage_wooden_drawer_01", -0.75, D - 0.3, fit=0.9, wall=(0, 1))
     p["desk"] = put("wooden_table_02", 1.75, D - 0.42, 0, fit=0.72)
     put("wooden_stool_02", 1.75, D - 1.05, 0.3, fit=0.45)
-    p["cabinet"] = put("modern_wooden_cabinet", 0.75, 0.32, 0, fit=0.55)
+    p["cabinet"] = put("modern_wooden_cabinet", 0.75, 0.32, fit=0.55, wall=(0, -1))
     p["side"] = put("side_table_tall_01", -0.75, 0.3, 0, fit=0.62)
     put("planter_pot_clay", X0 + 0.3, D - 0.3, 0)
     put("calathea_orbifolia_01", 3.6, 0.85, 0, fit=0.8)
@@ -401,13 +436,13 @@ def fill(rng, p):
     """Shelves full of things, the table set, a real kitchen counter."""
     deco = room.templates(("book_encyclopedia_set_01", "decorative_book_set_01", "ceramic_vase_01", "ceramic_vase_03",
                            "brass_vase_01", "wooden_bowl_01", "alarm_clock_01", "standing_picture_frame_01",
-                           "standing_picture_frame_02", "carved_wooden_elephant", "concrete_cat_statue", "rubber_duck_toy",
+                           "standing_picture_frame_02", "carved_wooden_elephant", "concrete_cat_statue",
                            "Lantern_01", "gamepad", "cassette_player", "chess_set", "lambis_shell", "binder_notebook",
                            "brass_candleholders", "anthurium_botany_01", "round_spectacles", "vintage_pocket_watch"), rng, 0.42)
     food = room.templates(("food_apple_01", "bananas", "lemon", "jug_01", "wooden_bowl_02", "plastic_thermos", "tea_set_01",
                            "russian_food_cans_01", "food_pomegranate_01"), rng, 0.4)
     n = 0
-    for key, count in (("shelf_a", 26), ("shelf_b", 18), ("tansu", 5), ("desk", 7), ("cabinet", 5), ("side", 2)):
+    for key, count in (("shelf_a", 34), ("shelf_b", 24), ("tansu", 5), ("desk", 7), ("cabinet", 5), ("side", 2)):
         root = p.get(key)
         if root is None:
             continue
