@@ -56,7 +56,8 @@ How the inside test works: six rays per vertex; Rapier marks a back-face hit on 
 ## 5. Performance
 | Item | Status | Notes |
 |---|---|---|
-| Phone 30+ FPS, PC 60+ FPS | 🟡 | Can't be measured here: the test machine has no GPU (software rendering gives about 20 FPS at 1280×720 for any WebGL game). Done for speed: static meshes merged by material, meshopt + WebP 1024, quality tiers (pixel ratio, shadows, paint texture size), no shadows on point lights. Turn on Settings → Graphics → Show FPS to read it on a real device. |
+| PC 60+ FPS | ✅ | Measured on Mohsen's PC (GeForce GTX 1650, Chrome, "high" tier, live site): 14.6 ms per frame at 1920×1080 = **68 FPS**; 10.5 ms (95 FPS) at the default window size. 97 draw calls after merging static meshes. |
+| Phone 30+ FPS | 🟡 | Not measured on a real phone yet. Phones start on a lower tier (lower pixel ratio, no shadows, smaller paint texture). The map is 750k triangles, the main risk on older phones; next step if it's slow there: distance LODs for the photoscans. Settings → Graphics → Show FPS shows the number on any device. |
 
 ## 6. Not built yet (Phase 2+, as planned)
 Online rooms, seekers, bots and the other maps. Database is Render free Postgres (the Neon sign-up captcha kept looping); it expires 30 days after creation unless moved to Neon.
