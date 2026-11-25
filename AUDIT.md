@@ -8,8 +8,8 @@ What the rejection asked for, what changed, and how it was checked. ✅ done · 
 | Item | Status | Notes |
 |---|---|---|
 | Photoscanned PBR props | ✅ | All hero props and clutter are Poly Haven CC0 photoscans (credits.json lists each one). |
-| Hero props 8k–40k triangles | ✅ | Photoscans as shipped by Poly Haven; the map's total triangle count is written to map.json (`triangles`). |
-| Character 20k–40k triangles | ✅ | Subdivision 4 + even decimate ≈ 30k (the Blender log prints the exact count). Earlier build: 15.6k. |
+| Hero props 8k–40k triangles | ✅ | Photoscans as shipped by Poly Haven; the whole map is 750,420 triangles (written to map.json `triangles`). |
+| Character 20k–40k triangles | ✅ | 30,654 triangles (subdivision 4 + even decimate). Earlier build: 15,612. |
 | Soft character material | ✅ | Sheen and a little subsurface (vinyl toy). |
 | LODs | 🟡 | gltf-transform `optimize` simplifies and meshopt-compresses at pack time. No separate distance LODs yet; the room is small (8 × 6.5 m), so everything is close. |
 | Real Japanese apartment | ✅ | Hand-authored layout (not random): 16 tatami mats, cedar trim, nageshi beam and posts, two real windows (glass, frames, sill, curtains), genkan door with a tiled step, kitchen (counter, sink, hob, hood, wall cabinets), fridge, futon with duvet and pillow, oshiire closet with fusuma, chabudai + 4 zabuton, rug, 4 original posters, 3 plushies, full shelves, plants, pendant paper lamp + ceiling light, balcony and city outside. Ceiling height 2.4 m. |
