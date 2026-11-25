@@ -98,6 +98,10 @@ jobs:
         run: |
           mkdir -p web/public/assets/3d/maps
           [ -f build/art/3d/hider.glb ] && cp build/art/3d/hider.glb web/public/assets/3d/hider.glb
+          mkdir -p web/public/assets/3d/poses
+          for f in build/art/3d/poses/*.png; do
+            [ -f "$f" ] && python -c "from PIL import Image; Image.open('$f').save('web/public/assets/3d/poses/'+'$(basename "$f" .png)'+'.webp', quality=85)"
+          done
           for d in build/art/3d/maps/*/; do
             id=$(basename "$d"); mkdir -p "web/public/assets/3d/maps/$id"
             npx -y @gltf-transform/cli@4 optimize "$d/map.glb" "web/public/assets/3d/maps/$id/map.glb" \
