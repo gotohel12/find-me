@@ -16,7 +16,7 @@ permissions:
   pull-requests: write
 concurrency:
   group: art-${{ github.head_ref || github.ref }}-${{ contains(github.event.pull_request.labels.*.name, 'full-render') }}
-  cancel-in-progress: true
+  cancel-in-progress: false  # PR path filters see the whole PR diff, so every push re-triggers: queue, never kill a render
 env:
   BLENDER_VERSION: 4.2.9
   FULL: ${{ contains(github.event.pull_request.labels.*.name, 'full-render') || (github.event_name == 'workflow_dispatch' && !inputs.preview) }}
