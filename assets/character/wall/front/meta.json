@@ -1,0 +1,22 @@
+{
+  "pose": "wall",
+  "angle": "front",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    255.5,
+    466.0
+  ],
+  "bbox": [
+    107,
+    173,
+    405,
+    466
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}

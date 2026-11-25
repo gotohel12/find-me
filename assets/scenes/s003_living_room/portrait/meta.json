@@ -1,0 +1,66 @@
+{
+  "sceneId": "s003_living_room",
+  "title": {
+    "en": "Living Room",
+    "ar": "غرفة المعيشة"
+  },
+  "theme": "living_room",
+  "seed": 1103,
+  "orientation": "portrait",
+  "width": 1440,
+  "height": 2560,
+  "focalPx": 1564.4444444444446,
+  "characterHeightM": 0.37,
+  "keyLight": {
+    "dirCam": [
+      -0.43116,
+      0.55048,
+      0.7149
+    ],
+    "color": [
+      1.0,
+      0.93,
+      0.82
+    ],
+    "strength": 3.0
+  },
+  "ambient": [
+    0.62,
+    0.64,
+    0.68
+  ],
+  "roles": {
+    "0": "forbidden",
+    "1": "surface",
+    "2": "forbidden"
+  },
+  "credit": "Mohsen ~ Danial",
+  "generator": "blender/scenes/s003_living_room.py",
+  "images": {
+    "webp": {
+      "file": "beauty.webp",
+      "bytes": 272394,
+      "width": 1440,
+      "height": 2560
+    },
+    "avif": {
+      "file": "beauty.avif",
+      "bytes": 413749,
+      "width": 1440,
+      "height": 2560
+    }
+  },
+  "thumb": "thumb.webp",
+  "data": {
+    "file": "data.png",
+    "scale": 0.5,
+    "near": 1.2611953050613405,
+    "far": 4.253116777668001,
+    "encoding": "R,G = depth 16-bit big-endian over near..far; B = 255 forbidden"
+  },
+  "normal": {
+    "file": "normal.webp",
+    "scale": 0.5
+  },
+  "forbiddenFrac": 0.15066216362847223
+}

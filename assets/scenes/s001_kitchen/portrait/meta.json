@@ -1,0 +1,66 @@
+{
+  "sceneId": "s001_kitchen",
+  "title": {
+    "en": "Kitchen",
+    "ar": "المطبخ"
+  },
+  "theme": "kitchen",
+  "seed": 1101,
+  "orientation": "portrait",
+  "width": 1440,
+  "height": 2560,
+  "focalPx": 1564.4444444444446,
+  "characterHeightM": 0.37,
+  "keyLight": {
+    "dirCam": [
+      -0.43533,
+      0.5367,
+      0.7228
+    ],
+    "color": [
+      1.0,
+      0.93,
+      0.82
+    ],
+    "strength": 3.0
+  },
+  "ambient": [
+    0.62,
+    0.64,
+    0.68
+  ],
+  "roles": {
+    "0": "forbidden",
+    "1": "surface",
+    "2": "forbidden"
+  },
+  "credit": "Mohsen ~ Danial",
+  "generator": "blender/scenes/s001_kitchen.py",
+  "images": {
+    "webp": {
+      "file": "beauty.webp",
+      "bytes": 350944,
+      "width": 1440,
+      "height": 2560
+    },
+    "avif": {
+      "file": "beauty.avif",
+      "bytes": 479047,
+      "width": 1440,
+      "height": 2560
+    }
+  },
+  "thumb": "thumb.webp",
+  "data": {
+    "file": "data.png",
+    "scale": 0.5,
+    "near": 1.3739432561588287,
+    "far": 3.7945976414394402,
+    "encoding": "R,G = depth 16-bit big-endian over near..far; B = 255 forbidden"
+  },
+  "normal": {
+    "file": "normal.webp",
+    "scale": 0.5
+  },
+  "forbiddenFrac": 0.1257256401909722
+}

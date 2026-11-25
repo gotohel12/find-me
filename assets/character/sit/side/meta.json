@@ -1,0 +1,22 @@
+{
+  "pose": "sit",
+  "angle": "side",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    226.08,
+    471.0
+  ],
+  "bbox": [
+    197,
+    203,
+    315,
+    471
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}

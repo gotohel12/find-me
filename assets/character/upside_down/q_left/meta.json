@@ -1,0 +1,22 @@
+{
+  "pose": "upside_down",
+  "angle": "q_left",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    249.67,
+    467.0
+  ],
+  "bbox": [
+    158,
+    168,
+    354,
+    467
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}

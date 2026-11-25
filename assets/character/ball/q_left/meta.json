@@ -1,0 +1,22 @@
+{
+  "pose": "ball",
+  "angle": "q_left",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    265.23,
+    469.0
+  ],
+  "bbox": [
+    190,
+    311,
+    395,
+    469
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}

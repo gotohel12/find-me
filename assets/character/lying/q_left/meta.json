@@ -1,0 +1,22 @@
+{
+  "pose": "lying",
+  "angle": "q_left",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    129.41,
+    441.0
+  ],
+  "bbox": [
+    58,
+    323,
+    303,
+    441
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}

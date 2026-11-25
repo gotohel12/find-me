@@ -1,0 +1,22 @@
+{
+  "pose": "stand",
+  "angle": "q_left",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    238.0,
+    470.0
+  ],
+  "bbox": [
+    196,
+    171,
+    316,
+    470
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}

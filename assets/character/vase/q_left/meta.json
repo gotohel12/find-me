@@ -1,0 +1,22 @@
+{
+  "pose": "vase",
+  "angle": "q_left",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    240.89,
+    469.0
+  ],
+  "bbox": [
+    165,
+    169,
+    343,
+    469
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}

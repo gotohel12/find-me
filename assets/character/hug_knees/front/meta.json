@@ -1,0 +1,22 @@
+{
+  "pose": "hug_knees",
+  "angle": "front",
+  "size": 512,
+  "pixelsPerMetre": 825.8064516129033,
+  "cameraPitchDeg": 12,
+  "anchor": [
+    255.5,
+    468.0
+  ],
+  "bbox": [
+    188,
+    247,
+    324,
+    468
+  ],
+  "files": {
+    "uvp": "uvp.png",
+    "nao": "nao.png",
+    "shade": "shade.webp"
+  }
+}
