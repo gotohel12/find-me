@@ -15,13 +15,13 @@ export interface InputState {
 
 export type Action = 'paint' | 'pose' | 'lock' | 'jump' | 'crouch' | 'undo' | 'redo' | 'eyedrop';
 
+import { settings, MOUSE_BASE, TOUCH_BASE } from '../core/settings.ts';
+
 export const isTouchDevice = () =>
   typeof window !== 'undefined' && (matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 1);
 
 export class Input {
   readonly state: InputState = { moveX: 0, moveY: 0, lookDX: 0, lookDY: 0, sprint: false, crouch: false, jump: false, zoom: 0 };
-  sensitivity = 0.0025;
-  invertY = false;
   /** When false (paint mode / menus), mouse moves a cursor instead of the camera. */
   lookEnabled = true;
   private keys = new Set<string>();
@@ -57,8 +57,10 @@ export class Input {
     on('blur', () => this.keys.clear());
     on('mousemove', (e) => {
       if (document.pointerLockElement === this.canvas && this.lookEnabled) {
-        this.state.lookDX += e.movementX * this.sensitivity;
-        this.state.lookDY += e.movementY * this.sensitivity * (this.invertY ? -1 : 1);
+        const st = settings.get();
+        // raw counts, no acceleration (unadjustedMovement is requested with the lock)
+        this.state.lookDX += e.movementX * MOUSE_BASE * st.mouseSens * st.mouseX;
+        this.state.lookDY += e.movementY * MOUSE_BASE * st.mouseSens * st.mouseY * (st.invertY ? -1 : 1);
       }
     });
     on('wheel', (e) => {
@@ -80,8 +82,9 @@ export class Input {
           this.joy.x = t.clientX;
           this.joy.y = t.clientY;
         } else if (t.identifier === this.lookTouch.id && this.lookEnabled) {
-          this.state.lookDX += (t.clientX - this.lookTouch.x) * 0.006;
-          this.state.lookDY += (t.clientY - this.lookTouch.y) * 0.006 * (this.invertY ? -1 : 1);
+          const st = settings.get();
+          this.state.lookDX += (t.clientX - this.lookTouch.x) * TOUCH_BASE * st.touchSens * st.touchX;
+          this.state.lookDY += (t.clientY - this.lookTouch.y) * TOUCH_BASE * st.touchSens * st.touchY * (st.invertY ? -1 : 1);
           this.lookTouch.x = t.clientX;
           this.lookTouch.y = t.clientY;
         }
@@ -107,7 +110,15 @@ export class Input {
 
   requestLock() {
     if (!isTouchDevice() && document.pointerLockElement !== this.canvas) {
-      this.canvas.requestPointerLock?.()?.catch?.(() => {});
+      const req = this.canvas.requestPointerLock as unknown as (o?: { unadjustedMovement?: boolean }) => Promise<void> | void;
+      try {
+        const p = req.call(this.canvas, { unadjustedMovement: true });
+        if (p && typeof (p as Promise<void>).catch === 'function') {
+          (p as Promise<void>).catch(() => req.call(this.canvas));
+        }
+      } catch {
+        req.call(this.canvas);
+      }
     }
   }
   releaseLock() {
@@ -135,10 +146,20 @@ export class Input {
     const k = this.keys;
     let mx = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
     let my = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
+    const st = settings.get();
     if (this.joy.id >= 0) {
-      const R = 60;
-      mx = Math.max(-1, Math.min(1, (this.joy.x - this.joy.x0) / R));
-      my = Math.max(-1, Math.min(1, -(this.joy.y - this.joy.y0) / R));
+      const R = st.joystickSize / 2;
+      let jx = (this.joy.x - this.joy.x0) / R;
+      let jy = -(this.joy.y - this.joy.y0) / R;
+      const m = Math.hypot(jx, jy);
+      if (m < st.deadZone) jx = jy = 0;
+      else {
+        const k = Math.min(1, (m - st.deadZone) / (1 - st.deadZone)) / m;
+        jx *= k;
+        jy *= k;
+      }
+      mx = jx;
+      my = jy;
     }
     let sprint = k.has('ShiftLeft') || k.has('ShiftRight');
     let crouch = k.has('ControlLeft') || k.has('KeyC') || this.touchCrouch;
@@ -146,13 +167,14 @@ export class Input {
     const pads = navigator.getGamepads?.() ?? [];
     for (const p of pads) {
       if (!p) continue;
-      const dz = (v: number) => (Math.abs(v) < 0.15 ? 0 : v);
+      const dz = (v: number) => (Math.abs(v) < st.deadZone ? 0 : (v - Math.sign(v) * st.deadZone) / (1 - st.deadZone));
+      const curve = (v: number) => (st.padCurve === 'exponential' ? Math.sign(v) * v * v : v);
       if (dz(p.axes[0]) || dz(p.axes[1])) {
         mx = dz(p.axes[0]);
         my = -dz(p.axes[1]);
       }
-      this.state.lookDX += dz(p.axes[2] ?? 0) * 0.05;
-      this.state.lookDY += dz(p.axes[3] ?? 0) * 0.05;
+      this.state.lookDX += curve(dz(p.axes[2] ?? 0)) * 0.045 * st.padSens;
+      this.state.lookDY += curve(dz(p.axes[3] ?? 0)) * 0.035 * st.padSens * (st.invertY ? -1 : 1);
       if (p.buttons[0]?.pressed) this.state.jump = true;
       if (p.buttons[10]?.pressed) sprint = true;
       if (p.buttons[1]?.pressed) crouch = true;

@@ -88,11 +88,48 @@ export class Hider {
 
   setPose(p: PoseName | null) {
     this.pose = p;
+    this.model.position.set(0, 0, 0);
     if (p) this.play(`pose_${p}`, 0.25);
     else {
       this.locked = false;
       this.play('idle', 0.25);
     }
+  }
+
+  /**
+   * Evaluate the current pose's final shape now (ignoring the blend) and measure it in
+   * world space: the lowest point of the body, and the lowest point of the torso (the
+   * seat contact for sitting poses). Samples every few vertices of the skinned mesh.
+   */
+  measurePose(): { minY: number; seatY: number; samples: THREE.Vector3[] } {
+    const a = this.pose ? this.actions.get(`pose_${this.pose}`) : null;
+    const saved: [THREE.AnimationAction, number][] = [];
+    if (a) {
+      for (const x of this.actions.values()) {
+        saved.push([x, x.getEffectiveWeight()]);
+        if (x !== a) x.setEffectiveWeight(0);
+      }
+      a.setEffectiveWeight(1);
+      a.time = 0;
+      this.mixer.update(0);
+    }
+    this.root.updateMatrixWorld(true);
+    const geo = this.mesh.geometry;
+    const part = geo.getAttribute('aPart') as THREE.BufferAttribute | undefined;
+    const n = geo.getAttribute('position').count;
+    const v = new THREE.Vector3();
+    let minY = Infinity;
+    let seatY = Infinity;
+    const samples: THREE.Vector3[] = [];
+    for (let i = 0; i < n; i += 5) {
+      this.mesh.getVertexPosition(i, v);
+      v.applyMatrix4(this.mesh.matrixWorld);
+      if (v.y < minY) minY = v.y;
+      if (part && part.getX(i) === 2 && v.y < seatY) seatY = v.y;
+      if (i % 40 === 0) samples.push(v.clone());
+    }
+    for (const [x, w] of saved) x.setEffectiveWeight(w);
+    return { minY, seatY: Number.isFinite(seatY) ? seatY : minY, samples };
   }
 
   update(dt: number) {

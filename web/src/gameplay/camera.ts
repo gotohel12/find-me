@@ -6,7 +6,8 @@ import type RAPIER from '@dimforge/rapier3d-compat';
 export class OrbitFollow {
   yaw = Math.PI; // looking toward -Z (into the room)
   pitch = 0.25;
-  distance = 2.4;
+  distance = 2.6;
+  smoothing = false;
   minDist = 0.8;
   maxDist = 5;
   private target = new THREE.Vector3();
@@ -33,7 +34,8 @@ export class OrbitFollow {
   update(focus: THREE.Vector3, dt: number, shoulder = 0.35) {
     this.target.copy(focus);
     if (this.smooth.lengthSq() === 0) this.smooth.copy(focus);
-    this.smooth.lerp(this.target, Math.min(1, dt * 14));
+    // follow tightly (no lag/jitter); optional extra smoothing from settings
+    this.smooth.lerp(this.target, this.smoothing ? 1 - Math.exp(-10 * dt) : 1 - Math.exp(-30 * dt));
     const dir = new THREE.Vector3(
       Math.sin(this.yaw) * Math.cos(this.pitch),
       Math.sin(this.pitch),

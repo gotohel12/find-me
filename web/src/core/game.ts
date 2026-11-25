@@ -10,6 +10,9 @@ import { Hider, HIDER_SCALE, type PoseName } from '../gameplay/hider.ts';
 import { OrbitFollow } from '../gameplay/camera.ts';
 import { PaintSystem, hitToBind, type BrushSettings, type Tool } from '../gameplay/paint.ts';
 import { sfx } from '../sfx.ts';
+import { settings } from './settings.ts';
+import { mergeStatic } from '../render/merge.ts';
+import RAPIER from '@dimforge/rapier3d-compat';
 
 export interface MapMeta {
   id: string;
@@ -51,6 +54,14 @@ export class Game {
   private stroke: { last: THREE.Vector3 | null; lineStart: THREE.Vector3 | null; pointer: number } | null = null;
   private fpsAcc = { t: 0, n: 0 };
   private paintDrag: { x: number; y: number; id: number } | null = null;
+  private acc = 0;
+  private vel = new THREE.Vector3();
+  private coyote = 0;
+  private jumpBuffer = 0;
+  private prevFeet = new THREE.Vector3();
+  private curFeet = new THREE.Vector3();
+  private poseHome: THREE.Vector3 | null = null;
+  private unsubSettings: (() => void) | null = null;
   view: GameView;
   meta: MapMeta | null = null;
 
@@ -110,11 +121,13 @@ export class Game {
           m.receiveShadow = true;
         }
       });
-      this.engine.scene.add(map);
-      this.engine.setupLights(meta.sun?.dirWorld ?? null, meta.size);
-
       this.phys = new Physics();
       this.phys.addStaticMeshes(map);
+      // render the level as one mesh per material (far fewer draw calls)
+      const { before, after, merged } = mergeStatic(map);
+      console.info(`[findme] level draw calls: ${before} -> ${after}`);
+      this.engine.scene.add(merged);
+      this.engine.setupLights(meta.sun?.dirWorld ?? null, meta.size);
       this.hider = new Hider(hiderGltf);
       this.engine.scene.add(this.hider.root);
       const spawn = blenderToThree(meta.spawn.hiders[0] ?? [0, meta.size[1] / 2, 0.05]);
@@ -123,6 +136,10 @@ export class Game {
       this.paint = new PaintSystem(this.engine.renderer, this.hider.mesh, QUALITY[this.engine.quality].paintSize, QUALITY[this.engine.quality].undo);
       this.orbit = new OrbitFollow(this.engine.camera, this.phys, this.body.collider);
       this.input.onAction((a) => this.action(a));
+      this.applySettings();
+      this.unsubSettings = settings.subscribe(() => this.applySettings());
+      this.body.feet(this.curFeet);
+      this.prevFeet.copy(this.curFeet);
       this.bindPaintPointer();
       this.emit({ loading: 1 });
       this.loop();
@@ -187,10 +204,75 @@ export class Game {
     this.setBrush({ color: rgb });
   }
 
+  private applySettings() {
+    const st = settings.get();
+    this.engine.camera.fov = st.fov;
+    this.engine.camera.updateProjectionMatrix();
+    if (this.orbit) {
+      this.orbit.distance = st.cameraDistance;
+      this.orbit.smoothing = st.cameraSmoothing;
+    }
+  }
+
   setPose(p: PoseName | null) {
+    if (this.poseHome && (!p || this.hider.pose)) {
+      // leaving a seat: step back to where we were standing
+      this.body.teleport(this.poseHome);
+      this.poseHome = null;
+    }
     this.hider.setPose(p);
+    if (p) this.placePose(p);
     sfx.thunk();
     this.emit({ pose: p, locked: false });
+  }
+
+  /**
+   * Put the posed body ON the world, never inside it. Sitting looks for a seat in front
+   * (chair, stool, sofa, bench, bed edge) and rests the torso on its top; every other pose
+   * rests its lowest point on whatever surface is under the body.
+   */
+  private placePose(p: PoseName) {
+    const world = this.phys.world;
+    const down = { x: 0, y: -1, z: 0 };
+    const castDown = (x: number, y: number, z: number, max: number) => {
+      const hit = world.castRay(new RAPIER.Ray({ x, y, z }, down), max, true, undefined, undefined, this.body.collider);
+      return hit ? y - hit.timeOfImpact : null;
+    };
+    const feet = this.body.feet(new THREE.Vector3());
+    if (p === 'sit') {
+      const f = this.hider.facing;
+      let best: { y: number; x: number; z: number } | null = null;
+      for (let d = 0; d <= 0.9; d += 0.1) {
+        for (const side of [0, -0.12, 0.12]) {
+          const x = feet.x + Math.sin(f) * d + Math.cos(f) * side;
+          const z = feet.z + Math.cos(f) * d - Math.sin(f) * side;
+          const y = castDown(x, feet.y + 1.4, z, 1.4);
+          if (y !== null && y - feet.y > 0.18 && y - feet.y < 0.85) {
+            best = { y, x, z };
+            break;
+          }
+        }
+        if (best) break;
+      }
+      if (best) {
+        this.poseHome = feet.clone();
+        // face away from the seat's back (turn around) and sit on it
+        this.hider.facing = this.hider.facing + Math.PI;
+        this.hider.root.rotation.y = this.hider.facing;
+        this.body.teleport(new THREE.Vector3(best.x, feet.y, best.z));
+        this.body.feet(this.hider.root.position);
+        const m = this.hider.measurePose();
+        this.hider.model.position.y += best.y + 0.006 - m.seatY;
+        return;
+      }
+    }
+    const m = this.hider.measurePose();
+    let support = feet.y;
+    for (const v of m.samples) {
+      const y = castDown(v.x, v.y + 0.6, v.z, 1.2);
+      if (y !== null && y > support && y < v.y + 0.6) support = y;
+    }
+    this.hider.model.position.y += support + 0.006 - m.minY;
   }
 
   toggleLock() {
@@ -261,7 +343,8 @@ export class Game {
     });
     c.addEventListener('pointermove', (e) => {
       if (this.paintDrag && e.pointerId === this.paintDrag.id) {
-        this.orbit.look((e.clientX - this.paintDrag.x) * 0.006, (e.clientY - this.paintDrag.y) * 0.006);
+        const k = 0.006 * settings.get().paintOrbitSens;
+        this.orbit.look((e.clientX - this.paintDrag.x) * k, (e.clientY - this.paintDrag.y) * k);
         this.paintDrag.x = e.clientX;
         this.paintDrag.y = e.clientY;
         return;
@@ -355,27 +438,43 @@ export class Game {
     const s = this.input.consume();
     const painting = this.view.mode === 'paint';
     if (!painting) this.orbit.look(s.lookDX, s.lookDY);
-    this.orbit.zoom(s.zoom);
+    this.orbit.zoom(s.zoom * (painting ? settings.get().paintZoomSpeed : 1));
 
-    // movement (frozen while locked in or painting)
-    let speed = 0;
-    if (!this.hider.locked && !painting) {
-      const { forward, right } = this.orbit.basis();
-      const dir = forward.multiplyScalar(s.moveY).add(right.multiplyScalar(s.moveX));
-      const base = s.crouch ? 1.2 : s.sprint ? 4.2 : 2.3;
-      speed = dir.length() * base;
-      if (dir.lengthSq() > 0.001) {
-        dir.normalize();
-        this.hider.facing = Math.atan2(dir.x, dir.z);
-        if (this.hider.pose) this.setPose(null); // moving cancels an unlocked pose
-      }
-      this.body.move(dir.x * base, dir.z * base, s.jump, dt);
-      if (s.jump && this.body.grounded) sfx.tap();
-    } else {
-      this.body.move(0, 0, false, dt);
+    // intent (camera-relative), with smooth acceleration so starts/stops never feel instant or icy
+    const frozen = this.hider.locked || painting;
+    const { forward, right } = this.orbit.basis();
+    const wish = forward.multiplyScalar(s.moveY).add(right.multiplyScalar(s.moveX));
+    const top = s.crouch ? 1.2 : s.sprint ? 4.2 : 2.4;
+    const target = frozen ? new THREE.Vector3() : wish.multiplyScalar(top);
+    const rate = target.lengthSq() > this.vel.lengthSq() ? 12 : 16; // accelerate / brake
+    this.vel.lerp(target, 1 - Math.exp(-rate * dt));
+    if (!frozen && wish.lengthSq() > 0.0004) {
+      this.hider.facing = Math.atan2(wish.x, wish.z);
+      if (this.hider.pose) this.setPose(null); // moving cancels an unlocked pose
     }
-    this.phys.step(dt);
-    this.body.feet(this.hider.root.position);
+    if (s.jump && !frozen) this.jumpBuffer = 0.14;
+
+    // fixed 60 Hz physics, rendered with interpolation (no jitter at any frame rate)
+    const STEP = 1 / 60;
+    this.acc += dt;
+    while (this.acc >= STEP) {
+      this.acc -= STEP;
+      this.coyote = this.body.grounded ? 0.12 : Math.max(0, this.coyote - STEP);
+      this.jumpBuffer = Math.max(0, this.jumpBuffer - STEP);
+      const jump = this.jumpBuffer > 0 && this.coyote > 0;
+      if (jump) {
+        this.jumpBuffer = 0;
+        this.coyote = 0;
+        this.body.grounded = true; // allow the jump from coyote time
+        sfx.tap();
+      }
+      this.prevFeet.copy(this.curFeet);
+      this.body.move(this.vel.x, this.vel.z, jump, STEP);
+      this.phys.step(STEP);
+      this.body.feet(this.curFeet);
+    }
+    this.hider.root.position.lerpVectors(this.prevFeet, this.curFeet, this.acc / STEP);
+    const speed = Math.hypot(this.vel.x, this.vel.z);
     this.hider.locomotion(speed, this.body.grounded, painting);
     this.hider.update(dt);
 
@@ -385,7 +484,7 @@ export class Game {
       this.orbit.update(focus, dt, 0);
     } else {
       this.orbit.minDist = 0.8;
-      this.orbit.update(focus, dt, 0.35);
+      this.orbit.update(focus, dt, 0.32);
     }
     this.engine.render();
 
@@ -399,6 +498,7 @@ export class Game {
 
   dispose() {
     cancelAnimationFrame(this.raf);
+    this.unsubSettings?.();
     this.input.dispose();
     this.paint?.dispose();
     this.engine.dispose();

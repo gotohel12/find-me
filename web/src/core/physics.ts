@@ -81,7 +81,7 @@ export class CharacterBody {
 
   /** Move by a horizontal velocity (m/s) for dt seconds, with gravity and jumping. */
   move(vx: number, vz: number, jump: boolean, dt: number) {
-    if (this.grounded && jump) this.velY = 4.8;
+    if (jump) this.velY = 4.8;
     this.velY -= 14 * dt;
     if (this.velY < -20) this.velY = -20;
     this.controller.computeColliderMovement(this.collider, { x: vx * dt, y: this.velY * dt, z: vz * dt });
