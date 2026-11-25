@@ -1,0 +1,5 @@
+building 1 job(s) with /home/runner/blender/blender
+  ok  hider3d                        10.4s
+      [fm] rendering on CPU
+      [hider3d] triangles: 30654
+      [hider3d] exported: 15337 verts, 30654 tris, 23 actions
