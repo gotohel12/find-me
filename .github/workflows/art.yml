@@ -16,7 +16,7 @@ permissions:
   pull-requests: write
 concurrency:
   group: art-${{ github.head_ref || github.ref }}-${{ contains(github.event.pull_request.labels.*.name, 'full-render') }}
-  cancel-in-progress: true
+  cancel-in-progress: false  # PR path filters see the whole PR diff, so every push re-triggers: queue, never kill a render
 env:
   BLENDER_VERSION: 4.2.9
   FULL: ${{ contains(github.event.pull_request.labels.*.name, 'full-render') || (github.event_name == 'workflow_dispatch' && !inputs.preview) }}
@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [character, s001_kitchen, s002_workshop, s003_living_room, ui_app_icon]
+        job: [hider3d, m01_japanese_apartment]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -92,8 +92,24 @@ jobs:
         run: python -m unittest discover -s tools/tests -v
       - uses: actions/download-artifact@v4
         with: { pattern: art-*, path: build, merge-multiple: true }
-      - name: Pack
-        run: python tools/scene_pack.py --art build/art --out web/public/assets --clean
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Pack 3D assets (meshopt geometry, WebP textures, 1K max for the web)
+        run: |
+          mkdir -p web/public/assets/3d/maps
+          [ -f build/art/3d/hider.glb ] && cp build/art/3d/hider.glb web/public/assets/3d/hider.glb
+          mkdir -p web/public/assets/3d/poses
+          for f in build/art/3d/poses/*.png; do
+            [ -f "$f" ] && python -c "from PIL import Image; Image.open('$f').save('web/public/assets/3d/poses/'+'$(basename "$f" .png)'+'.webp', quality=85)"
+          done
+          for d in build/art/3d/maps/*/; do
+            id=$(basename "$d"); mkdir -p "web/public/assets/3d/maps/$id"
+            npx -y @gltf-transform/cli@4 optimize "$d/map.glb" "web/public/assets/3d/maps/$id/map.glb" \
+              --compress meshopt --texture-compress webp --texture-size 1024
+            cp "$d/map.json" "$d/credits.json" "web/public/assets/3d/maps/$id/"
+            [ -f "$d/preview.png" ] && python -c "from PIL import Image; Image.open('$d/preview.png').convert('RGB').save('web/public/assets/3d/maps/$id/preview.webp', quality=82)"
+          done
+          ls -la web/public/assets/3d web/public/assets/3d/maps/*
       - run: python blender/build_all.py --verify
       - name: Review sheets -> branch art-review (viewable without artifact downloads)
         if: always()
@@ -112,7 +128,7 @@ jobs:
         if: env.FULL == 'true' && github.event_name == 'pull_request' && needs.render.result == 'success'
         run: |
           git config user.name "FIND ME art CI"; git config user.email "art-ci@users.noreply.github.com"
-          git add -f web/public/assets web/public/icons
+          git add -f web/public/assets/3d
           git commit -m "feat(art): rendered art library (run ${{ github.run_id }})" -m "Rendered headless with Blender ${{ env.BLENDER_VERSION }}. Developed by Mohsen ~ Danial. © 2026 MD Studio." || echo "no changes"
           git push origin HEAD:${{ github.head_ref }}
       - name: Open PR with packed assets

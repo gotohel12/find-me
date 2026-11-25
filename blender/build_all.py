@@ -37,7 +37,10 @@ def find_blender() -> str:
 
 
 def jobs() -> list[tuple[str, str]]:
-    out = [("character", os.path.join(HERE, "character", "hider.py"))]
+    out = [("character", os.path.join(HERE, "character", "hider.py")),
+           ("hider3d", os.path.join(HERE, "character", "hider3d.py"))]
+    for p in sorted(glob.glob(os.path.join(HERE, "maps", "m[0-9][0-9]_*.py"))):
+        out.append((os.path.splitext(os.path.basename(p))[0], p))
     for p in sorted(glob.glob(os.path.join(HERE, "scenes", "s[0-9][0-9][0-9]_*.py"))):
         out.append((os.path.splitext(os.path.basename(p))[0], p))
     for p in sorted(glob.glob(os.path.join(HERE, "ui", "*.py"))):
@@ -100,7 +103,7 @@ def main() -> int:
             name, secs, code, log = f.result()
             print(f"  {'ok ' if code == 0 else 'ERR'} {name:<28} {secs:6.1f}s")
             for line in log.splitlines():
-                if line.startswith(("[room]", "[fm]", "[hider] stand", "[icon]")):
+                if line.startswith(("[room]", "[fm]", "[hider] stand", "[icon]", "[hider3d]", "[map]")):
                     print("      " + line)
             if code != 0:
                 failed.append(name)
