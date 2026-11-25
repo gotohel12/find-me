@@ -51,7 +51,19 @@ export class Physics {
       const tris = idx.length / 3;
       const name = `${m.name} ${(m.material as THREE.Material)?.name ?? ''} ${m.parent?.name ?? ''}`.toLowerCase();
       const foliage = FOLIAGE_RE.test(name);
-      const dense = tris > DENSE_TRIS;
+      // only compact props become a hull: the exporter joins meshes that share a material, so a
+      // "dense" mesh can also be every wall of the room — a hull of that fills the whole room
+      let span = 0;
+      for (let a = 0; a < 3; a++) {
+        let lo = Infinity;
+        let hi = -Infinity;
+        for (let i = a; i < verts.length; i += 3) {
+          if (verts[i] < lo) lo = verts[i];
+          if (verts[i] > hi) hi = verts[i];
+        }
+        span = Math.max(span, hi - lo);
+      }
+      const dense = tris > DENSE_TRIS && span < 1.8;
       const member = foliage ? G_FOLIAGE : dense ? G_SOLID : G_SOLID | G_WALK;
       const col = this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, idx).setCollisionGroups(groups(member, 0xffff)));
       if (!foliage) this.triCount.set(col.handle, tris);
