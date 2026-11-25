@@ -51,23 +51,28 @@ export class Physics {
       const tris = idx.length / 3;
       const name = `${m.name} ${(m.material as THREE.Material)?.name ?? ''} ${m.parent?.name ?? ''}`.toLowerCase();
       const foliage = FOLIAGE_RE.test(name);
-      // only compact props become a hull: the exporter joins meshes that share a material, so a
-      // "dense" mesh can also be every wall of the room — a hull of that fills the whole room
-      let span = 0;
-      for (let a = 0; a < 3; a++) {
-        let lo = Infinity;
-        let hi = -Infinity;
-        for (let i = a; i < verts.length; i += 3) {
-          if (verts[i] < lo) lo = verts[i];
-          if (verts[i] > hi) hi = verts[i];
-        }
-        span = Math.max(span, hi - lo);
+      if (foliage) {
+        this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, idx).setCollisionGroups(groups(G_FOLIAGE, 0xffff)));
+        n++;
+        return;
       }
-      const dense = tris > DENSE_TRIS && span < 1.8;
-      const member = foliage ? G_FOLIAGE : dense ? G_SOLID : G_SOLID | G_WALK;
-      const col = this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, idx).setCollisionGroups(groups(member, 0xffff)));
-      if (!foliage) this.triCount.set(col.handle, tris);
-      if (dense && !foliage) this.addWalkShape(verts);
+      if (tris <= DENSE_TRIS) {
+        // simple geometry (walls, boxes, cushions): one exact mesh for everything
+        const col = this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, idx).setCollisionGroups(groups(G_SOLID | G_WALK, 0xffff)));
+        this.triCount.set(col.handle, tris);
+        n++;
+        return;
+      }
+      // dense photoscans: exact mesh for queries only…
+      const col = this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, idx).setCollisionGroups(groups(G_SOLID, 0xffff)));
+      this.triCount.set(col.handle, tris);
+      // …and for walking, every separate object inside it (the exporter joins all copies that
+      // share a material) becomes its own convex hull; small loose bits stay an exact mesh
+      const { parts, rest } = splitParts(verts, idx);
+      for (const p of parts) this.addWalkShape(p);
+      if (rest.length) {
+        this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, new Uint32Array(rest)).setCollisionGroups(groups(G_WALK, 0xffff)));
+      }
       n++;
     });
     return n;
@@ -123,6 +128,75 @@ export interface CharacterShape {
 }
 
 /** Kinematic capsule driven by the player's input (walk, sprint, crouch, jump, gravity). */
+/**
+ * Split a triangle mesh into connected pieces (vertices welded by position). Pieces with
+ * enough triangles and a compact size come back as point clouds for hulls; the rest as indices.
+ */
+function splitParts(verts: Float32Array, idx: Uint32Array) {
+  const nv = verts.length / 3;
+  const weld = new Int32Array(nv);
+  const key = new Map<string, number>();
+  for (let i = 0; i < nv; i++) {
+    const k = `${Math.round(verts[i * 3] * 2000)},${Math.round(verts[i * 3 + 1] * 2000)},${Math.round(verts[i * 3 + 2] * 2000)}`;
+    let w = key.get(k);
+    if (w === undefined) {
+      w = i;
+      key.set(k, i);
+    }
+    weld[i] = w;
+  }
+  const parent = new Int32Array(nv);
+  for (let i = 0; i < nv; i++) parent[i] = i;
+  const find = (x: number): number => {
+    while (parent[x] !== x) {
+      parent[x] = parent[parent[x]];
+      x = parent[x];
+    }
+    return x;
+  };
+  for (let t = 0; t < idx.length; t += 3) {
+    const a = find(weld[idx[t]]);
+    const b = find(weld[idx[t + 1]]);
+    const c = find(weld[idx[t + 2]]);
+    parent[b] = a;
+    parent[find(c)] = a;
+  }
+  const byRoot = new Map<number, number[]>();
+  for (let t = 0; t < idx.length; t += 3) {
+    const r = find(weld[idx[t]]);
+    let l = byRoot.get(r);
+    if (!l) byRoot.set(r, (l = []));
+    l.push(t);
+  }
+  const parts: Float32Array[] = [];
+  const rest: number[] = [];
+  for (const list of byRoot.values()) {
+    const lo = [Infinity, Infinity, Infinity];
+    const hi = [-Infinity, -Infinity, -Infinity];
+    for (const t of list)
+      for (let j = 0; j < 3; j++)
+        for (let a = 0; a < 3; a++) {
+          const x = verts[idx[t + j] * 3 + a];
+          if (x < lo[a]) lo[a] = x;
+          if (x > hi[a]) hi[a] = x;
+        }
+    const span = Math.max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]);
+    if (list.length >= 60 && span < 1.8) {
+      const pts = new Float32Array(list.length * 9);
+      let k = 0;
+      for (const t of list)
+        for (let j = 0; j < 3; j++) {
+          const v = idx[t + j] * 3;
+          pts[k++] = verts[v];
+          pts[k++] = verts[v + 1];
+          pts[k++] = verts[v + 2];
+        }
+      parts.push(pts);
+    } else for (const t of list) rest.push(idx[t], idx[t + 1], idx[t + 2]);
+  }
+  return { parts, rest };
+}
+
 /** Collision groups (Rapier: membership in the high 16 bits, filter in the low 16). */
 export const G_SOLID = 0x0001; // exact shapes: camera, poses, clipping
 export const G_WALK = 0x0002; // what the walking body bumps into
