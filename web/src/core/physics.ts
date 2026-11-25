@@ -55,13 +55,48 @@ export class Physics {
       const member = foliage ? G_FOLIAGE : dense ? G_SOLID : G_SOLID | G_WALK;
       const col = this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, idx).setCollisionGroups(groups(member, 0xffff)));
       if (!foliage) this.triCount.set(col.handle, tris);
-      if (dense && !foliage) {
-        const hull = RAPIER.ColliderDesc.convexHull(verts);
-        if (hull) this.world.createCollider(hull.setCollisionGroups(groups(G_WALK, 0xffff)));
-      }
+      if (dense && !foliage) this.addWalkShape(verts);
       n++;
     });
     return n;
+  }
+
+  /** Simple stand-in for a dense mesh: convex hull of up to 1500 of its points, else its box. */
+  private addWalkShape(verts: Float32Array) {
+    const n = verts.length / 3;
+    const stride = Math.max(1, Math.floor(n / 1500));
+    const pts = new Float32Array(Math.ceil(n / stride) * 3);
+    const lo = [Infinity, Infinity, Infinity];
+    const hi = [-Infinity, -Infinity, -Infinity];
+    let k = 0;
+    for (let i = 0; i < n; i++) {
+      for (let a = 0; a < 3; a++) {
+        const x = verts[i * 3 + a];
+        if (x < lo[a]) lo[a] = x;
+        if (x > hi[a]) hi[a] = x;
+      }
+      if (i % stride === 0) {
+        pts[k++] = verts[i * 3];
+        pts[k++] = verts[i * 3 + 1];
+        pts[k++] = verts[i * 3 + 2];
+      }
+    }
+    const g = groups(G_WALK, 0xffff);
+    try {
+      const hull = RAPIER.ColliderDesc.convexHull(pts.subarray(0, k));
+      if (hull) {
+        this.world.createCollider(hull.setCollisionGroups(g));
+        return;
+      }
+    } catch {
+      /* degenerate point set: use the box */
+    }
+    const h = [0, 1, 2].map((a) => Math.max(0.005, (hi[a] - lo[a]) / 2));
+    this.world.createCollider(
+      RAPIER.ColliderDesc.cuboid(h[0], h[1], h[2])
+        .setTranslation((lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2)
+        .setCollisionGroups(g),
+    );
   }
 
   step(dt: number) {
