@@ -570,7 +570,7 @@ def main():
         "id": MAP_ID,
         "title": {"en": THEME.title_en, "ar": THEME.title_ar},
         "size": [W, D, H],
-        "spawn": {"hiders": [[1.4, 1.6, 0.05], [-1.0, 1.4, 0.05], [0.6, 4.4, 0.05]], "seekers": [[3.1, 0.9, 0.05]]},
+        "spawn": {"hiders": [[0.6, 1.3, 0.05], [-1.0, 1.4, 0.05], [0.6, 4.4, 0.05]], "seekers": [[3.1, 0.9, 0.05]]},
         "sun": {"dirWorld": list(fm.sun_direction_world(sun)), "color": list(sun.data.color), "strength": sun.data.energy},
         "lights": LIGHTS,
         "triangles": tris,
