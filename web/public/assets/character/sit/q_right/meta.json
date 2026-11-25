@@ -5,13 +5,13 @@
   "pixelsPerMetre": 825.8064516129033,
   "cameraPitchDeg": 12,
   "anchor": [
-    292.0,
+    292.5,
     466.0
   ],
   "bbox": [
     196,
     206,
-    319,
+    335,
     466
   ],
   "files": {

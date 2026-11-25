@@ -39,13 +39,13 @@
   "images": {
     "webp": {
       "file": "beauty.webp",
-      "bytes": 420782,
+      "bytes": 420546,
       "width": 2560,
       "height": 1440
     },
     "avif": {
       "file": "beauty.avif",
-      "bytes": 575442,
+      "bytes": 575384,
       "width": 2560,
       "height": 1440
     }

@@ -6,13 +6,13 @@
   "cameraPitchDeg": 12,
   "anchor": [
     255.5,
-    469.0
+    473.0
   ],
   "bbox": [
     197,
     171,
     315,
-    469
+    473
   ],
   "files": {
     "uvp": "uvp.png",
