@@ -69,13 +69,75 @@ export class Physics {
       // …and for walking, every separate object inside it (the exporter joins all copies that
       // share a material) becomes its own convex hull; small loose bits stay an exact mesh
       const { parts, rest } = splitParts(verts, idx);
-      for (const p of parts) this.addWalkShape(p);
+      for (const p of parts) this.addPartShapes(p);
       if (rest.length) {
         this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, new Uint32Array(rest)).setCollisionGroups(groups(G_WALK, 0xffff)));
       }
       n++;
     });
     return n;
+  }
+
+  /**
+   * One dense object (triangle soup, 9 floats per triangle) as a few convex pieces: cut into
+   * 12 cm height bands, and inside a band into touching 10 cm columns. A table becomes its top +
+   * four legs (you can still walk under a desk); a vase or a clock is just one hull.
+   */
+  private addPartShapes(tri: Float32Array) {
+    const nt = tri.length / 9;
+    let ylo = Infinity;
+    let yhi = -Infinity;
+    for (let i = 1; i < tri.length; i += 3) {
+      if (tri[i] < ylo) ylo = tri[i];
+      if (tri[i] > yhi) yhi = tri[i];
+    }
+    if (yhi - ylo < 0.3 || nt < 200) return this.addWalkShape(tri);
+    const BAND = 0.12;
+    const CELL = 0.1;
+    const bands = new Map<number, Map<string, number[]>>();
+    for (let t = 0; t < nt; t++) {
+      const o = t * 9;
+      const cx = (tri[o] + tri[o + 3] + tri[o + 6]) / 3;
+      const cy = (tri[o + 1] + tri[o + 4] + tri[o + 7]) / 3;
+      const cz = (tri[o + 2] + tri[o + 5] + tri[o + 8]) / 3;
+      const b = Math.floor((cy - ylo) / BAND);
+      let cells = bands.get(b);
+      if (!cells) bands.set(b, (cells = new Map()));
+      const k = `${Math.floor(cx / CELL)},${Math.floor(cz / CELL)}`;
+      let l = cells.get(k);
+      if (!l) cells.set(k, (l = []));
+      l.push(t);
+    }
+    const pieces: number[][] = [];
+    for (const cells of bands.values()) {
+      const seen = new Set<string>();
+      for (const start of cells.keys()) {
+        if (seen.has(start)) continue;
+        const stack = [start];
+        seen.add(start);
+        const tris: number[] = [];
+        while (stack.length) {
+          const k = stack.pop()!;
+          tris.push(...cells.get(k)!);
+          const [x, z] = k.split(',').map(Number);
+          for (let dx = -1; dx <= 1; dx++)
+            for (let dz = -1; dz <= 1; dz++) {
+              const nk = `${x + dx},${z + dz}`;
+              if (cells.has(nk) && !seen.has(nk)) {
+                seen.add(nk);
+                stack.push(nk);
+              }
+            }
+        }
+        pieces.push(tris);
+      }
+    }
+    if (pieces.length > 48) return this.addWalkShape(tri);
+    for (const tris of pieces) {
+      const pts = new Float32Array(tris.length * 9);
+      tris.forEach((t, i) => pts.set(tri.subarray(t * 9, t * 9 + 9), i * 9));
+      this.addWalkShape(pts);
+    }
   }
 
   /** Simple stand-in for a dense mesh: convex hull of up to 1500 of its points, else its box. */
@@ -205,7 +267,7 @@ export const G_FOLIAGE = 0x0008; // plants: you brush through them
 export const groups = (member: number, filter: number) => ((member << 16) | filter) >>> 0;
 /** filter for queries against exact solid geometry */
 export const QUERY_SOLID = groups(0xffff, G_SOLID);
-const DENSE_TRIS = 3000;
+const DENSE_TRIS = 400; // above this, a mesh walks as hulls (character controller cost grows with triangles)
 const FOLIAGE_RE = /calathea|plant|anthurium|botany|leaf|leaves|fern|monstera|ficus/;
 
 export class CharacterBody {
