@@ -31,6 +31,26 @@ export class OrbitFollow {
     return { forward: f, right: r };
   }
 
+  /**
+   * Turn toward the most open direction around the focus (nearest to the current yaw that
+   * has at least `want` metres free): entering paint mode never jams the lens into furniture.
+   */
+  findOpenView(focus: THREE.Vector3, want: number) {
+    let best = this.yaw;
+    let bestScore = -Infinity;
+    for (let k = 0; k < 24; k++) {
+      const yaw = this.yaw + ((k % 2 ? 1 : -1) * Math.ceil(k / 2) * Math.PI) / 12;
+      const dir = new THREE.Vector3(Math.sin(yaw) * Math.cos(this.pitch), Math.sin(this.pitch), Math.cos(yaw) * Math.cos(this.pitch));
+      const free = cameraClearance(this.phys, focus, dir, want + 0.5, this.exclude);
+      const score = Math.min(free, want) * 10 - Math.abs(Math.atan2(Math.sin(yaw - this.yaw), Math.cos(yaw - this.yaw)));
+      if (score > bestScore) {
+        bestScore = score;
+        best = yaw;
+      }
+    }
+    this.yaw = best;
+  }
+
   update(focus: THREE.Vector3, dt: number, shoulder = 0.35) {
     this.target.copy(focus);
     if (this.smooth.lengthSq() === 0) this.smooth.copy(focus);

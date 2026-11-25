@@ -170,7 +170,15 @@ export class Game {
 
   setMode(mode: 'play' | 'paint') {
     this.input.lookEnabled = mode === 'play';
-    if (mode === 'paint') this.input.releaseLock();
+    if (mode === 'paint') {
+      this.input.releaseLock();
+      this.orbit.pitch = 0.22;
+      this.orbit.distance = Math.max(1.7, settings.get().cameraDistance * 0.75);
+      const focus = this.hider.root.position.clone().add(new THREE.Vector3(0, this.hider.height * 0.55, 0));
+      this.orbit.findOpenView(focus, this.orbit.distance);
+    } else {
+      this.orbit.distance = settings.get().cameraDistance;
+    }
     this.frameForPanel(mode === 'paint');
     this.emit({ mode });
     sfx.tap();
