@@ -56,7 +56,12 @@ export function mergeStatic(root: THREE.Object3D): { before: number; after: numb
     if (!geo) continue;
     geo.computeBoundingSphere();
     const m = new THREE.Mesh(geo, mat);
-    m.castShadow = true;
+    // small dense photoscans (clocks, shells, bowls…) barely show a shadow but cost the most in
+    // the shadow pass: only big things cast. Everything still receives.
+    geo.computeBoundingBox();
+    const size = geo.boundingBox!.getSize(new THREE.Vector3());
+    const tris = (geo.index ? geo.index.count : geo.getAttribute('position').count) / 3;
+    m.castShadow = !(tris > 3000 && Math.max(size.x, size.y, size.z) < 0.7);
     m.receiveShadow = true;
     merged.add(m);
     geoms.forEach((g) => g.dispose());
